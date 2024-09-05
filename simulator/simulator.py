@@ -83,5 +83,5 @@ class ImuSimulator:
 
 
 if __name__ == "__main__":
-    simulator = ImuSimulator("config/imu_simulator.yaml", ".")
+    simulator = ImuSimulator("../config/imu_simulator.yaml", ".")
     simulator.run()

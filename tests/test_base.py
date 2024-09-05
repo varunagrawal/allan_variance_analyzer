@@ -77,12 +77,12 @@ class SlowAllanVariance:
             averages_map[period_time] = current_average
 
 
-current_dir = Path(__file__).parent.parent.absolute()
+current_dir = Path(__file__).parent.absolute()
 
 
 def get_config_file():
     """Helper to get a config file for testing"""
-    return current_dir / "anymal_c.yaml"
+    return current_dir.parent.absolute() / "config" / "anymal_c.yaml"
 
 
 class TestAllanVariance(unittest.TestCase):
@@ -90,7 +90,8 @@ class TestAllanVariance(unittest.TestCase):
 
     def setUp(self):
         self.config_file = get_config_file()
-        data = np.loadtxt(current_dir / "measurements.csv", delimiter=",")
+        data = np.loadtxt(current_dir / "fixtures" / "measurements.csv",
+                          delimiter=",")
         self.measurements = data[:, 2:8]
         # Convert gyro measurements from radians to degrees
         # data.at[:, 3:6].set(jnp.rad2deg(data[:, 3:6]))
