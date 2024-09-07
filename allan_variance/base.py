@@ -49,6 +49,30 @@ class AllanVariance:
         """Run Allan Variance"""
         return self.run(data)
 
+    def compute_bin_averages(self, data, period_time):
+        """
+        Compute the averages over bins of size `period_time`*`measure_rate`.
+        """
+        data = np.array(data)
+
+        max_bin_size = int(period_time * self.measure_rate_)
+        overlap = int(np.floor(max_bin_size * self.overlap_))
+
+        indices = np.arange(0, data.shape[0] - max_bin_size,
+                            max_bin_size - overlap)
+
+        # reduceat adds everything after the last index,
+        # so we update the end
+        data = data[:indices[-1] + max_bin_size]
+
+        # add_func = jnp.ufunc(jnp.add, 2, 1)
+        # current_averages = add_func.reduceat(data, indices=indices, axis=0)
+        current_average = np.add.reduceat(data, indices=indices, axis=0)
+
+        current_average = current_average / max_bin_size
+
+        return current_average
+
     def compute_allan_variance(self, averages_map, period_min: float,
                                period_max: float):
         """Compute the Allan Variance given the averages map.
@@ -74,30 +98,6 @@ class AllanVariance:
             allan_variances.append((period_time, allan_variance))
 
         return allan_variances
-
-    def compute_bin_averages(self, data, period_time):
-        """
-        Compute the averages over bins of size `period_time`*`measure_rate`.
-        """
-        data = np.array(data)
-
-        max_bin_size = int(period_time * self.measure_rate_)
-        overlap = int(np.floor(max_bin_size * self.overlap_))
-
-        indices = np.arange(0, data.shape[0] - max_bin_size,
-                            max_bin_size - overlap)
-
-        # reduceat adds everything after the last index,
-        # so we update the end
-        data = data[:indices[-1] + max_bin_size]
-
-        # add_func = jnp.ufunc(jnp.add, 2, 1)
-        # current_averages = add_func.reduceat(data, indices=indices, axis=0)
-        current_average = np.add.reduceat(data, indices=indices, axis=0)
-
-        current_average = current_average / max_bin_size
-
-        return current_average
 
     # @partial(jax.jit, static_argnums=(0, ))
     def run(self, data):
