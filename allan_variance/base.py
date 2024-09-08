@@ -1,9 +1,8 @@
-from functools import partial
+"""Base module to Allan Variance Analysis"""
+
 from pathlib import Path
 from typing import Union
 
-import jax
-import jax.numpy as jnp
 import numpy as np
 import yaml
 from tqdm import tqdm
@@ -35,6 +34,8 @@ class AllanVariance:
 
         self.overlap_ = overlap
 
+        self.dt = 0.1
+
         # Range we will sample from (e.g. 0.1s to 1000s)
         self.period_min, self.period_max = period_min, period_max
 
@@ -65,16 +66,13 @@ class AllanVariance:
         # so we update the end
         data = data[:indices[-1] + max_bin_size]
 
-        # add_func = jnp.ufunc(jnp.add, 2, 1)
-        # current_averages = add_func.reduceat(data, indices=indices, axis=0)
         current_average = np.add.reduceat(data, indices=indices, axis=0)
 
         current_average = current_average / max_bin_size
 
         return current_average
 
-    def compute_allan_variance(self, averages_map, period_min: float,
-                               period_max: float):
+    def compute_allan_variance(self, averages_map, periods: np.ndarray):
         """Compute the Allan Variance given the averages map.
 
         Args:
@@ -88,24 +86,23 @@ class AllanVariance:
         """
         allan_variances = []
 
-        for period_time in np.arange(period_min, period_max, step=0.1):
+        for period_time in periods:
             averages = averages_map[period_time]
             n = len(averages)
 
             d = np.sum(np.power(averages[1:] - averages[:-1], 2), axis=0)
             allan_variance = d / (2 * (n - 1))
 
-            allan_variances.append((period_time, allan_variance))
+            allan_variances.append(allan_variance)
 
         return allan_variances
 
-    # @partial(jax.jit, static_argnums=(0, ))
     def run(self, data):
         """Run Allan Variance Analysis"""
         # Dict from period to averages
         averages_map = {}
 
-        periods = np.arange(self.period_min, self.period_max, step=0.1)
+        periods = np.arange(self.period_min, self.period_max, step=self.dt)
 
         for period_time in tqdm(periods):
             current_average = self.compute_bin_averages(data, period_time)
@@ -113,12 +110,10 @@ class AllanVariance:
             averages_map[period_time] = current_average
 
         allan_variances = self.compute_allan_variance(
-            averages_map=averages_map,
-            period_min=self.period_min,
-            period_max=self.period_max)
+            averages_map=averages_map, periods=periods)
 
         with open("allan_variance.csv", 'w+') as av_writer:
-            for period, av in allan_variances:
+            for period, av in zip(periods, allan_variances):
                 allan_deviation = np.sqrt(av)
                 av_writer.write(
                     f"{period} {allan_deviation[0]} {allan_deviation[1]} {allan_deviation[2]} {allan_deviation[3]} {allan_deviation[4]} {allan_deviation[5]} \n"
