@@ -42,6 +42,18 @@ class AllanVariance:
         # Range we will sample from (e.g. 0.1s to 1000s)
         self.period_min, self.period_max = period_min, period_max
 
+    def imu_topic(self):
+        """Get the IMU topic."""
+        return self.imu_topic_
+
+    def imu_rate(self):
+        """Get the IMU rate."""
+        return self.imu_rate_
+
+    def sequence_time(self):
+        """Get the total sequence time."""
+        return self.sequence_time_
+
     def config(self, key: str = ""):
         """Getter for the config."""
         if key:
@@ -88,16 +100,16 @@ class AllanVariance:
                 from `period_min` to `period_max`.
         """
         logger.info("Computing Allan Variances")
-        allan_variances = []
+        allan_variances = np.empty(periods.shape)
 
-        for period_time in periods:
+        for idx, period_time in enumerate(periods):
             averages = averages_map[period_time]
             n = len(averages)
 
             d = np.sum(np.power(averages[1:] - averages[:-1], 2), axis=0)
             allan_variance = d / (2 * (n - 1))
 
-            allan_variances.append(allan_variance)
+            allan_variances[idx] = allan_variance
 
         return allan_variances
 
