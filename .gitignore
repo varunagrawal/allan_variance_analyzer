@@ -34,3 +34,5 @@
 
 **/__pycache__
 *.egg-info
+
+catkin_ws
