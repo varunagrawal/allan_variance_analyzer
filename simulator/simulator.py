@@ -5,6 +5,7 @@ https://github.com/ori-drs/allan_variance_ros/blob/master/src/ImuSimulator.cpp
 from datetime import datetime, timedelta
 from pathlib import Path
 
+import jax
 import jax.numpy as np
 import yaml
 from jax import random
@@ -14,7 +15,7 @@ from tqdm import tqdm
 from allan_variance.base import FilePath
 
 
-def RandomNormalDistributionVector(key: random.PRNGKey, sigma: float):
+def RandomNormalDistributionVector(key: jax.Array, sigma: float):
     """Sample a normally distributed vector with variance `sigma`."""
     return random.normal(key, shape=(3, )) * sigma
 
@@ -56,7 +57,8 @@ class ImuSimulator:
         accelerometer_real = np.zeros(3)
         gyroscope_real = np.zeros(3)
 
-        writer = open(self.output_path_ / "measurements.csv", 'w+')
+        measurements_file = self.output_path_ / "measurements.csv"
+        writer = open(measurements_file, 'w+')
 
         start_time = datetime.now()
 
@@ -80,8 +82,10 @@ class ImuSimulator:
             )
 
         logger.info("Finished generating data. ")
+        writer.close()
+        logger.info(f"Measurements saved to {measurements_file}")
 
 
 if __name__ == "__main__":
-    simulator = ImuSimulator("../config/imu_simulator.yaml", ".")
+    simulator = ImuSimulator("config/imu_simulator.yaml", ".")
     simulator.run()
