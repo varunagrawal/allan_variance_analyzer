@@ -5,7 +5,10 @@ from typing import Union
 
 import numpy as np
 import yaml
+from loguru import logger
 from tqdm import tqdm
+
+from allan_variance.analysis import analyze
 
 FilePath = Union[str, Path]
 
@@ -84,6 +87,7 @@ class AllanVariance:
             List[np.ndarray]: Allan Variances for various time periods
                 from `period_min` to `period_max`.
         """
+        logger.info("Computing Allan Variances")
         allan_variances = []
 
         for period_time in periods:
@@ -99,6 +103,9 @@ class AllanVariance:
 
     def run(self, data):
         """Run Allan Variance Analysis"""
+        # Assuming gyro data is in radians, convert to degrees
+        data[:, 3:6] = np.rad2deg(data[:, 3:6])
+
         # Dict from period to averages
         averages_map = {}
 
@@ -112,6 +119,7 @@ class AllanVariance:
         allan_variances = self.compute_allan_variance(
             averages_map=averages_map, periods=periods)
 
+        logger.info("Writing Allan Deviations to allan_variance.csv")
         with open("allan_variance.csv", 'w+') as av_writer:
             for period, av in zip(periods, allan_variances):
                 allan_deviation = np.sqrt(av)
@@ -119,4 +127,6 @@ class AllanVariance:
                     f"{period} {allan_deviation[0]} {allan_deviation[1]} {allan_deviation[2]} {allan_deviation[3]} {allan_deviation[4]} {allan_deviation[5]} \n"
                 )
 
-        return allan_variances
+        allan_deviations = np.sqrt(np.asarray(allan_variances))
+
+        analyze(periods, allan_deviations)
