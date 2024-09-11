@@ -1,12 +1,13 @@
 """Run AVA on simulator data"""
 
-import numpy as np
-
-from allan_variance import AllanVariance
+from allan_variance import AllanVariance, ROSBagReader
 
 if __name__ == "__main__":
-    av = AllanVariance(config_file="config/anymal_c.yaml", output_path=".")
+    av = AllanVariance(config_file="config/sim.yaml", output_path=".")
 
-    data = np.loadtxt("measurements.csv", delimiter=",")
-    measurements = data[:, 2:8]
+    reader = ROSBagReader("catkin_ws/imu_simulation.bag", av.imu_topic(),
+                          av.imu_rate(), av.sequence_time(), av.imu_skip_)
+    data = reader.read()
+
+    measurements = data[:, 1:7]
     allan_variances = av(measurements)
