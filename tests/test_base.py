@@ -65,10 +65,10 @@ class SlowAllanVariance:
 
         return np.asarray(averages)
 
-    def compute_allan_variance(self, averages_map, period_min, period_max):
+    def compute_allan_variance(self, averages_map, periods):
         """Test compute_allan_variance method"""
         allan_variances = []
-        for period_time in np.arange(period_min, period_max, step=0.1):
+        for period_time in periods:
             averages = averages_map[period_time]
             num_averages = len(averages)
 
@@ -88,7 +88,6 @@ class SlowAllanVariance:
                     averages[k + 1, 5] - averages[k, 5], 2)
 
             avar = allan_variance / (2 * (num_averages - 1))
-            allan_deviation = np.sqrt(avar)
 
             allan_variances.append((period_time, avar))
 
@@ -106,9 +105,7 @@ class SlowAllanVariance:
             averages_map[period_time] = current_average
 
         allan_variances = self.compute_allan_variance(
-            averages_map=averages_map,
-            period_min=self.period_min,
-            period_max=self.period_max)
+            averages_map=averages_map, periods=periods)
 
 
 current_dir = Path(__file__).parent.absolute()
@@ -116,7 +113,7 @@ current_dir = Path(__file__).parent.absolute()
 
 def get_config_file():
     """Helper to get a config file for testing"""
-    return current_dir.parent.absolute() / "config" / "anymal_c.yaml"
+    return current_dir.parent.absolute() / "config" / "sim.yaml"
 
 
 class TestAllanVariance(unittest.TestCase):
@@ -137,7 +134,7 @@ class TestAllanVariance(unittest.TestCase):
         av = AllanVariance(self.config_file, ".")
 
         self.assertEqual(av.config('imu_rate'), 400)
-        self.assertEqual(av.config('measure_rate'), 100)
+        self.assertEqual(av.config('measure_rate'), 400)
 
     def test_compute_bin_averages(self):
         """Test the compute_bin_averages method"""
@@ -155,6 +152,7 @@ class TestAllanVariance(unittest.TestCase):
             np.testing.assert_allclose(expected_average, actual_average)
 
     def test_compute_allan_variance(self):
+        """Test compute_allan_variance method."""
         av = AllanVariance(self.config_file, ".")
         slow_av = SlowAllanVariance(self.config_file, ".")
 
@@ -169,15 +167,10 @@ class TestAllanVariance(unittest.TestCase):
             averages_map[period_time] = current_average
 
         actual_allan_variances = av.compute_allan_variance(
-            averages_map=averages_map,
-            period_min=period_min,
-            period_max=period_max)
+            averages_map=averages_map, periods=periods)
         expected_allan_variances = slow_av.compute_allan_variance(
-            averages_map=averages_map,
-            period_min=period_min,
-            period_max=period_max)
+            averages_map=averages_map, periods=periods)
 
-        _, actual_allan_variances = zip(*actual_allan_variances)
         actual_allan_variances = np.asarray(actual_allan_variances)
         _, expected_allan_variances = zip(*expected_allan_variances)
         expected_allan_variances = np.asarray(expected_allan_variances)
