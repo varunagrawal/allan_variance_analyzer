@@ -5,12 +5,13 @@ from pathlib import Path
 from typing import Callable
 
 import numpy as np
+import yaml
 
 from allan_variance.analysis import (accelerometer_analysis,
                                      compute_bias_instability,
                                      compute_rate_random_walk,
                                      compute_white_noise_params, get_intercept,
-                                     gyroscope_analysis)
+                                     gyroscope_analysis, write_imu_yaml)
 
 current_dir = Path(__file__).parent.absolute()
 
@@ -124,3 +125,21 @@ class TestAnalysis(unittest.TestCase):
         # regression
         self.assertEqual(0.010936249927095876, worst_gyro_white_noise)
         self.assertEqual(0.0002359578060906847, worst_gyro_random_walk)
+
+    def test_write_imu_yaml(self):
+        """Test the write_imu_yaml function."""
+        worst_accel_white_noise, worst_accel_random_walk = accelerometer_analysis(
+            self.period, self.acceleration, self.white_noise_break_point)
+        worst_gyro_white_noise, worst_gyro_random_walk = gyroscope_analysis(
+            self.period, self.rotation_rate, self.white_noise_break_point)
+
+        write_imu_yaml(worst_accel_white_noise, worst_accel_random_walk,
+                       worst_gyro_white_noise, worst_gyro_random_walk, 400)
+
+        with open("imu.yaml", 'r') as stream:
+            actual_config = yaml.safe_load(stream)
+
+        with open(current_dir / 'fixtures' / "imu.yaml", 'r') as stream:
+            expected_config = yaml.safe_load(stream)
+
+        self.assertDictEqual(expected_config, actual_config)

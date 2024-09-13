@@ -24,7 +24,6 @@ class Config:
         self.imu_rate_ = self.config_['imu_rate']
         self.measure_rate_ = self.config_['measure_rate']
         self.sequence_time_ = self.config_['sequence_time']
-        print(self.config_)
 
         self.imu_skip_ = self.imu_rate_ // self.measure_rate_
 
