@@ -1,7 +1,7 @@
 """Base module to Allan Variance Analysis"""
 
 from pathlib import Path
-from typing import Union
+from typing import Dict, Union
 
 import numpy as np
 import yaml
@@ -13,32 +13,27 @@ from allan_variance.analysis import analyze
 FilePath = Union[str, Path]
 
 
-class AllanVariance:
-    """Main class to perform Allan Variance Analysis"""
+class Config:
+    """Class for storing IMU configuration info."""
 
-    def __init__(self,
-                 config_file: FilePath,
-                 output_path: FilePath,
-                 overlap: int = 0,
-                 period_min: float = 0.1,
-                 period_max: float = 1000):
+    def __init__(self, config_file: FilePath):
         with open(config_file, 'r') as stream:
             self.config_ = yaml.safe_load(stream)
 
-        self.first_msg_ = True
         self.imu_topic_ = self.config_['imu_topic']
         self.imu_rate_ = self.config_['imu_rate']
         self.measure_rate_ = self.config_['measure_rate']
         self.sequence_time_ = self.config_['sequence_time']
+        print(self.config_)
 
         self.imu_skip_ = self.imu_rate_ // self.measure_rate_
 
-        self.imu_output_file_ = Path(output_path) / "allan_variance.csv"
-
-        self.overlap_ = overlap
-
-        # Range we will sample from (e.g. 0.1s to 1000s)
-        self.period_min, self.period_max = period_min, period_max
+    def config(self, key: str = ""):
+        """Getter for the config."""
+        if key:
+            return self.config_[key]
+        else:
+            return self.config_
 
     def imu_topic(self):
         """Get the IMU topic."""
@@ -48,22 +43,42 @@ class AllanVariance:
         """Get the IMU rate."""
         return self.imu_rate_
 
+    def measure_rate(self):
+        """Get the IMU measurement rate."""
+        return self.measure_rate_
+
     def sequence_time(self):
         """Get the total sequence time."""
         return self.sequence_time_
 
-    def config(self, key: str = ""):
-        """Getter for the config."""
-        if key:
-            return self.config_[key]
-        else:
-            return self.config_
+
+class AllanVariance(Config):
+    """Main class to perform Allan Variance Analysis"""
+
+    def __init__(self,
+                 config_file: FilePath,
+                 output_path: FilePath,
+                 overlap: int = 0,
+                 period_min: float = 0.1,
+                 period_max: float = 1000,
+                 write_allan_deviations=False):
+
+        super().__init__(config_file=config_file)
+
+        self.imu_output_file_ = Path(output_path) / "allan_variance.csv"
+
+        self.overlap_ = overlap
+
+        # Range we will sample from (e.g. 0.1s to 1000s)
+        self.period_min, self.period_max = period_min, period_max
+
+        self.write_allan_deviations_ = write_allan_deviations
 
     def __call__(self, data):
         """Run Allan Variance"""
         return self.run(data)
 
-    def compute_bin_averages(self, data, period_time):
+    def compute_bin_averages(self, data: np.ndarray, period_time: float):
         """
         Compute the averages over bins of size `period_time`*`measure_rate`.
         """
@@ -85,7 +100,8 @@ class AllanVariance:
 
         return current_average
 
-    def compute_allan_variance(self, averages_map, periods: np.ndarray):
+    def compute_allan_variance(self, averages_map: Dict[float, np.ndarray],
+                               periods: np.ndarray):
         """Compute the Allan Variance given the averages map.
 
         Args:
@@ -113,7 +129,16 @@ class AllanVariance:
 
         return allan_variances
 
-    def run(self, data):
+    def write_deviations(self, periods: np.ndarray,
+                         allan_deviations: np.ndarray):
+        """Helper method to write the Allan Deviations to file."""
+        logger.info("Writing Allan Deviations to allan_variance.csv")
+        with open("allan_variance.csv", 'w+') as av_writer:
+            for period, allan_deviation in zip(periods, allan_deviations):
+                allan_deviation_str = " ".join(allan_deviation.tolist())
+                av_writer.write(f"{period} {allan_deviation_str}\n")
+
+    def run(self, data: np.ndarray):
         """Run Allan Variance Analysis"""
         # Assuming gyro data is in radians, convert to degrees
         data[:, 3:6] = np.rad2deg(data[:, 3:6])
@@ -131,14 +156,9 @@ class AllanVariance:
         allan_variances = self.compute_allan_variance(
             averages_map=averages_map, periods=periods)
 
-        logger.info("Writing Allan Deviations to allan_variance.csv")
-        with open("allan_variance.csv", 'w+') as av_writer:
-            for period, av in zip(periods, allan_variances):
-                allan_deviation = np.sqrt(av)
-                av_writer.write(
-                    f"{period} {allan_deviation[0]} {allan_deviation[1]} {allan_deviation[2]} {allan_deviation[3]} {allan_deviation[4]} {allan_deviation[5]} \n"
-                )
+        allan_deviations = np.sqrt(allan_variances)
 
-        allan_deviations = np.sqrt(np.asarray(allan_variances))
+        if self.write_allan_deviations_:
+            self.write_deviations(periods, allan_deviations)
 
-        analyze(periods, allan_deviations)
+        analyze(periods, allan_deviations, self.imu_rate_)

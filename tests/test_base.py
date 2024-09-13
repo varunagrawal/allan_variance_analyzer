@@ -1,8 +1,9 @@
+"""Tests for base module."""
+
 import unittest
 from pathlib import Path
 
 import numpy as np
-import pytest
 import yaml
 
 from allan_variance import AllanVariance
@@ -36,6 +37,7 @@ class SlowAllanVariance:
         self.period_min, self.period_max = period_min, period_max
 
     def compute_bin_averages(self, data, period_time):
+        """Compute the averages over each bin"""
         max_bin_size = int(period_time * self.measure_rate_)
         overlap = int(np.floor(max_bin_size * self.overlap_))
 
@@ -106,6 +108,8 @@ class SlowAllanVariance:
 
         allan_variances = self.compute_allan_variance(
             averages_map=averages_map, periods=periods)
+
+        return allan_variances
 
 
 current_dir = Path(__file__).parent.absolute()
