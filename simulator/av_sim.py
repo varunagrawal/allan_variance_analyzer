@@ -3,7 +3,9 @@
 from allan_variance import AllanVariance, ROSBagReader
 
 if __name__ == "__main__":
-    av = AllanVariance(config_file="config/sim.yaml", output_path=".")
+    av = AllanVariance(config_file="config/sim.yaml",
+                       output_path=".",
+                       write_allan_deviations=True)
 
     reader = ROSBagReader("catkin_ws/imu_simulation.bag", av.imu_topic(),
                           av.imu_rate(), av.sequence_time(), av.imu_skip_)
