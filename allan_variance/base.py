@@ -20,8 +20,8 @@ class AllanVariance:
                  config_file: FilePath,
                  output_path: FilePath,
                  overlap: int = 0,
-                 period_min: float = 1,
-                 period_max: float = 10000):
+                 period_min: float = 0.1,
+                 period_max: float = 1000):
         with open(config_file, 'r') as stream:
             self.config_ = yaml.safe_load(stream)
 
@@ -37,7 +37,7 @@ class AllanVariance:
 
         self.overlap_ = overlap
 
-        # Range we will sample from, multiplied by 0.1
+        # Range we will sample from (e.g. 0.1s to 1000s)
         self.period_min, self.period_max = period_min, period_max
 
     def imu_topic(self):
@@ -121,12 +121,9 @@ class AllanVariance:
         # Dict from period to averages
         averages_map = {}
 
-        periods = range(self.period_min, self.period_max)
+        periods = np.arange(self.period_min, self.period_max, step=0.1)
 
-        for period in tqdm(periods):
-            # Go in increments of 0.1
-            period_time = period * 0.1
-
+        for period_time in tqdm(periods):
             current_average = self.compute_bin_averages(data, period_time)
 
             averages_map[period_time] = current_average

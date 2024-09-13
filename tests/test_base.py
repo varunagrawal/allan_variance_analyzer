@@ -15,8 +15,8 @@ class SlowAllanVariance:
                  config_file,
                  output_path,
                  overlap: int = 0,
-                 period_min=1,
-                 period_max=10000):
+                 period_min=0.1,
+                 period_max=1000):
         with open(config_file, 'r') as stream:
             self.config_ = yaml.safe_load(stream)
 
@@ -98,10 +98,9 @@ class SlowAllanVariance:
         # Dict from period to averages
         averages_map = {}
 
-        periods = range(self.period_min, self.period_max)
+        periods = np.arange(self.period_min, self.period_max, step=0.1)
 
-        for period in periods:
-            period_time = period * 0.1
+        for period_time in periods:
             current_average = self.compute_bin_averages(data, period_time)
             averages_map[period_time] = current_average
 
