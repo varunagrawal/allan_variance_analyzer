@@ -31,8 +31,9 @@
 *.out
 *.app
 
-
 **/__pycache__
 *.egg-info
 
 catkin_ws
+
+**/.DS_Store
