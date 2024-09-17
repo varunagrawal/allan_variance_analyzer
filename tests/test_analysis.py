@@ -111,7 +111,10 @@ class TestAnalysis(unittest.TestCase):
     def test_accelerometer_analysis(self):
         """Test accelerometer_analysis function."""
         worst_accel_white_noise, worst_accel_random_walk = accelerometer_analysis(
-            self.period, self.acceleration, self.white_noise_break_point)
+            self.period,
+            self.acceleration,
+            self.white_noise_break_point,
+            show_plots=False)
 
         # regression
         self.assertEqual(0.0025615284313200383, worst_accel_white_noise)
@@ -120,7 +123,10 @@ class TestAnalysis(unittest.TestCase):
     def test_gyroscope_analysis(self):
         """Test gyroscope_analysis function."""
         worst_gyro_white_noise, worst_gyro_random_walk = gyroscope_analysis(
-            self.period, self.rotation_rate, self.white_noise_break_point)
+            self.period,
+            self.rotation_rate,
+            self.white_noise_break_point,
+            show_plots=False)
 
         # regression
         self.assertEqual(0.010936249927095876, worst_gyro_white_noise)
@@ -129,9 +135,15 @@ class TestAnalysis(unittest.TestCase):
     def test_write_imu_yaml(self):
         """Test the write_imu_yaml function."""
         worst_accel_white_noise, worst_accel_random_walk = accelerometer_analysis(
-            self.period, self.acceleration, self.white_noise_break_point)
+            self.period,
+            self.acceleration,
+            self.white_noise_break_point,
+            show_plots=False)
         worst_gyro_white_noise, worst_gyro_random_walk = gyroscope_analysis(
-            self.period, self.rotation_rate, self.white_noise_break_point)
+            self.period,
+            self.rotation_rate,
+            self.white_noise_break_point,
+            show_plots=False)
 
         write_imu_yaml(worst_accel_white_noise, worst_accel_random_walk,
                        worst_gyro_white_noise, worst_gyro_random_walk, 400)

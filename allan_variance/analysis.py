@@ -180,7 +180,10 @@ def plot_loglog(period: np.ndarray,
                 bbox_inches="tight")
 
 
-def accelerometer_analysis(period, acceleration, white_noise_break_point):
+def accelerometer_analysis(period,
+                           acceleration,
+                           white_noise_break_point,
+                           show_plots: bool = True):
     """Analyze the accelerometer measurements to get accelerometer parameters."""
     # Compute VRW from the white noise
     # gradient=-0.5, intercept at t=1
@@ -217,16 +220,20 @@ def accelerometer_analysis(period, acceleration, white_noise_break_point):
     worst_accel_white_noise = np.amax(accel_wn_intercept)
     worst_accel_random_walk = np.amax(accel_rr_intercept)
 
-    plot_loglog(period, acceleration, accel_fit_wn, accel_fit_rr,
-                accel_wn_intercept, accel_rr_intercept, accel_min,
-                accel_min_index, average_acc_white_noise,
-                average_acc_bias_instability, average_acc_random_walk,
-                "Acceleration", "Accelerometer", "m/s^2")
+    if show_plots:
+        plot_loglog(period, acceleration, accel_fit_wn, accel_fit_rr,
+                    accel_wn_intercept, accel_rr_intercept, accel_min,
+                    accel_min_index, average_acc_white_noise,
+                    average_acc_bias_instability, average_acc_random_walk,
+                    "Acceleration", "Accelerometer", "m/s^2")
 
     return worst_accel_white_noise, worst_accel_random_walk
 
 
-def gyroscope_analysis(period, rotation_rate, white_noise_break_point):
+def gyroscope_analysis(period,
+                       rotation_rate,
+                       white_noise_break_point,
+                       show_plots: bool = True):
     """Analyze the gyroscope measurements to get gyroscope parameters."""
     # Compute ARW from the white noise
     # gradient=-0.5, intercept at t=1
@@ -264,20 +271,21 @@ def gyroscope_analysis(period, rotation_rate, white_noise_break_point):
     worst_gyro_white_noise = np.amax(gyro_wn_intercept)
     worst_gyro_random_walk = np.amax(gyro_rr_intercept)
 
-    plot_loglog(period,
-                rotation_rate,
-                gyro_fit_wn,
-                gyro_fit_rr,
-                gyro_wn_intercept,
-                gyro_rr_intercept,
-                gyro_min,
-                gyro_min_index,
-                average_gyro_white_noise,
-                average_gyro_bias_instability,
-                average_gyro_random_walk,
-                measurement_type="Gyro",
-                sensor_type="Gyroscope",
-                units="deg/s")
+    if show_plots:
+        plot_loglog(period,
+                    rotation_rate,
+                    gyro_fit_wn,
+                    gyro_fit_rr,
+                    gyro_wn_intercept,
+                    gyro_rr_intercept,
+                    gyro_min,
+                    gyro_min_index,
+                    average_gyro_white_noise,
+                    average_gyro_bias_instability,
+                    average_gyro_random_walk,
+                    measurement_type="Gyro",
+                    sensor_type="Gyroscope",
+                    units="deg/s")
 
     return worst_gyro_white_noise, worst_gyro_random_walk
 
@@ -321,7 +329,10 @@ def write_imu_yaml(worst_accel_white_noise: float,
     print("Make sure to update rostopic and rate.")
 
 
-def analyze(period, allan_deviations, update_rate: int):
+def analyze(period,
+            allan_deviations,
+            update_rate: int,
+            show_plots: bool = True):
     """Analyze the Allan Deviations to get IMU parameters"""
     acceleration = allan_deviations[:, 0:3]
     rotation_rate = allan_deviations[:, 3:6]
@@ -329,10 +340,10 @@ def analyze(period, allan_deviations, update_rate: int):
     white_noise_break_point = np.where(period == 10)[0][0]
 
     worst_accel_white_noise, worst_accel_random_walk = accelerometer_analysis(
-        period, acceleration, white_noise_break_point)
+        period, acceleration, white_noise_break_point, show_plots=show_plots)
 
     worst_gyro_white_noise, worst_gyro_random_walk = gyroscope_analysis(
-        period, rotation_rate, white_noise_break_point)
+        period, rotation_rate, white_noise_break_point, show_plots=show_plots)
 
     write_imu_yaml(worst_accel_white_noise,
                    worst_accel_random_walk,
