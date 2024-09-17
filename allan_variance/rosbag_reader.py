@@ -8,8 +8,7 @@ from rosbags.highlevel import AnyReader
 from rosbags.typesys import Stores, get_typestore
 from tqdm import tqdm
 
-from allan_variance.base import FilePath
-from allan_variance.imu_data import ImuMeasurement
+from allan_variance import FilePath, ImuMeasurement
 
 
 class ROSBagReader:
