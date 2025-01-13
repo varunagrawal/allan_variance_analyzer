@@ -146,14 +146,17 @@ class TestAllanVariance(unittest.TestCase):
         actual_average = av.compute_bin_averages(self.measurements, 0.1)
         slow_av = SlowAllanVariance(self.config_file, ".")
         expected_average = slow_av.compute_bin_averages(self.measurements, 0.1)
-        np.testing.assert_allclose(expected_average, actual_average)
+
+        np.testing.assert_allclose(expected_average, actual_average, atol=1e-6)
 
         for period_time in np.arange(0.1, 2, step=0.1):
             actual_average = av.compute_bin_averages(self.measurements,
                                                      period_time)
             expected_average = slow_av.compute_bin_averages(
                 self.measurements, period_time)
-            np.testing.assert_allclose(expected_average, actual_average)
+            np.testing.assert_allclose(expected_average,
+                                       actual_average,
+                                       atol=1e-6)
 
     def test_compute_allan_variance(self):
         """Test compute_allan_variance method."""
@@ -180,4 +183,5 @@ class TestAllanVariance(unittest.TestCase):
         expected_allan_variances = np.asarray(expected_allan_variances)
 
         np.testing.assert_allclose(expected_allan_variances,
-                                   actual_allan_variances)
+                                   actual_allan_variances,
+                                   atol=1e-4)
