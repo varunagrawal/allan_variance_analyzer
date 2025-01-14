@@ -20,6 +20,7 @@ exclude = ["config", "ros", "ros2", "simulator"]
 [tool.poetry.dependencies]
 python = "^3.10"
 numpy = "*"
+jax = "^0.4.38"
 matplotlib = "*"
 scipy = "*"
 setuptools = "^75.1.0"
