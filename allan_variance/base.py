@@ -138,7 +138,13 @@ class AllanVariance(Config):
                 av_writer.write(f"{period} {allan_deviation_str}\n")
 
     def run(self, data: np.ndarray):
-        """Run Allan Variance Analysis"""
+        """Run Allan Variance Analysis
+
+        Args:
+            data (np.ndarray): A Tx6 data array where the first 3
+            columns are linear acceleration and the next 3
+            are angular velocity.
+        """
         # Assuming gyro data is in radians, convert to degrees
         data[:, 3:6] = np.rad2deg(data[:, 3:6])
 
