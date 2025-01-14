@@ -3,7 +3,7 @@
 from pathlib import Path
 from typing import Dict, Union
 
-import numpy as np
+import jax.numpy as np
 import yaml
 from loguru import logger
 from tqdm import tqdm
@@ -124,7 +124,7 @@ class AllanVariance(Config):
             d = np.sum(np.power(averages[1:] - averages[:-1], 2), axis=0)
             allan_variance = d / (2 * (n - 1))
 
-            allan_variances[idx] = allan_variance
+            allan_variances.at[idx].set(allan_variance)
 
         return allan_variances
 
@@ -150,7 +150,7 @@ class AllanVariance(Config):
         for period_time in tqdm(periods):
             current_average = self.compute_bin_averages(data, period_time)
 
-            averages_map[period_time] = current_average
+            averages_map[float(period_time)] = current_average
 
         allan_variances = self.compute_allan_variance(
             averages_map=averages_map, periods=periods)
