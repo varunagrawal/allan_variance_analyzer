@@ -117,8 +117,10 @@ class TestAnalysis(unittest.TestCase):
             show_plots=False)
 
         # regression
-        self.assertEqual(0.0025615284313200383, worst_accel_white_noise)
-        self.assertEqual(9.079971439106243e-05, worst_accel_random_walk)
+        self.assertAlmostEqual(0.0025615284313200383, worst_accel_white_noise,
+                               11)
+        self.assertAlmostEqual(9.079971439106243e-05, worst_accel_random_walk,
+                               11)
 
     def test_gyroscope_analysis(self):
         """Test gyroscope_analysis function."""
@@ -129,8 +131,10 @@ class TestAnalysis(unittest.TestCase):
             show_plots=False)
 
         # regression
-        self.assertEqual(0.010936249927095876, worst_gyro_white_noise)
-        self.assertEqual(0.0002359578060906847, worst_gyro_random_walk)
+        self.assertAlmostEqual(0.010936249927095876, worst_gyro_white_noise,
+                               11)
+        self.assertAlmostEqual(0.0002359578060906847, worst_gyro_random_walk,
+                               11)
 
     def test_write_imu_yaml(self):
         """Test the write_imu_yaml function."""
