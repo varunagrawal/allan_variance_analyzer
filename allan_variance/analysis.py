@@ -88,7 +88,10 @@ def compute_rate_random_walk(period, measurements):
 
 
 def compute_bias_instability(measurement: np.ndarray):
-    """Compute the bias instability values."""
+    """
+    Compute the bias instability values.
+    These are the bias drift standard deviations.
+    """
     measurement_min = np.amin(measurement, axis=0)
     measurement_argmin = np.argmin(measurement, axis=0)
     return measurement_min, measurement_argmin
