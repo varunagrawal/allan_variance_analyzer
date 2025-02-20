@@ -117,7 +117,7 @@ class AllanVariance(Config):
         # Pre-allocate the Allan Variances
         allan_variances = np.empty(periods.shape + (6, ))
 
-        for idx, period_time in enumerate(periods):
+        for idx, period_time in tqdm(enumerate(periods), total=len(periods)):
             averages = averages_map[period_time]
             n = len(averages)
 
