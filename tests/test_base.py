@@ -170,8 +170,8 @@ class TestAllanVariance(unittest.TestCase):
                                                       period_time)
             averages_map[period_time] = current_average
 
-        actual_allan_variances = av.compute_allan_variance(
-            averages_map=averages_map, periods=periods)
+        actual_allan_variances = av.compute_allan_variance(self.measurements,
+                                                           periods=periods)
         expected_allan_variances = slow_av.compute_allan_variance(
             averages_map=averages_map, periods=periods)
 
