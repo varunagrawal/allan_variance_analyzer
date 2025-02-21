@@ -1,7 +1,7 @@
 """Base module to Allan Variance Analysis"""
 
 from pathlib import Path
-from typing import Dict, Union
+from typing import Union
 
 import numpy as np
 import yaml
@@ -9,6 +9,7 @@ from loguru import logger
 from tqdm import tqdm
 
 from allan_variance.analysis import analyze
+from allan_variance.statistics import compute_bin_averages
 
 FilePath = Union[str, Path]
 
@@ -73,31 +74,13 @@ class AllanVariance(Config):
 
         self.write_allan_deviations_ = write_allan_deviations
 
+    def overlap(self):
+        """Get the overlap."""
+        return self.overlap_
+
     def __call__(self, data):
         """Run Allan Variance"""
         return self.run(data)
-
-    def compute_bin_averages(self, data: np.ndarray, period_time: float):
-        """
-        Compute the averages over bins of size `period_time`*`measure_rate`.
-        """
-        data = np.array(data)
-
-        max_bin_size = int(period_time * self.measure_rate_)
-        overlap = int(np.floor(max_bin_size * self.overlap_))
-
-        indices = np.arange(0, data.shape[0] - max_bin_size,
-                            max_bin_size - overlap)
-
-        # reduceat adds everything after the last index,
-        # so we update the end
-        data = data[:indices[-1] + max_bin_size]
-
-        current_average = np.add.reduceat(data, indices=indices, axis=0)
-
-        current_average = current_average / max_bin_size
-
-        return current_average
 
     def compute_allan_variance(self, data, periods: np.ndarray):
         """Compute the Allan Variance given the averages map.
@@ -116,9 +99,12 @@ class AllanVariance(Config):
         allan_variances = np.empty(periods.shape + (6, ))
 
         for idx, period_time in tqdm(enumerate(periods), total=len(periods)):
+            max_bin_size = int(period_time * self.measure_rate_)
+            overlap = int(np.floor(max_bin_size * self.overlap_))
+
             # Compute the bin averages in the same loop
             # This saves memory and is faster
-            averages = self.compute_bin_averages(data, period_time)
+            averages = compute_bin_averages(data, max_bin_size, overlap)
             n = len(averages)
 
             d = np.sum(np.power(averages[1:] - averages[:-1], 2), axis=0)

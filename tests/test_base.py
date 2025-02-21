@@ -7,6 +7,7 @@ import numpy as np
 import yaml
 
 from allan_variance import AllanVariance
+from allan_variance.statistics import compute_bin_averages
 
 
 class SlowAllanVariance:
@@ -143,14 +144,20 @@ class TestAllanVariance(unittest.TestCase):
     def test_compute_bin_averages(self):
         """Test the compute_bin_averages method"""
         av = AllanVariance(self.config_file, ".")
-        actual_average = av.compute_bin_averages(self.measurements, 0.1)
+
+        max_bin_size = int(0.1 * av.measure_rate())
+        overlap = int(np.floor(max_bin_size * av.overlap()))
+        actual_average = compute_bin_averages(self.measurements, max_bin_size,
+                                              overlap)
         slow_av = SlowAllanVariance(self.config_file, ".")
         expected_average = slow_av.compute_bin_averages(self.measurements, 0.1)
         np.testing.assert_allclose(expected_average, actual_average)
 
         for period_time in np.arange(0.1, 2, step=0.1):
-            actual_average = av.compute_bin_averages(self.measurements,
-                                                     period_time)
+            max_bin_size = int(period_time * av.measure_rate())
+            overlap = int(np.floor(max_bin_size * av.overlap()))
+            actual_average = compute_bin_averages(self.measurements,
+                                                  max_bin_size, overlap)
             expected_average = slow_av.compute_bin_averages(
                 self.measurements, period_time)
             np.testing.assert_allclose(expected_average, actual_average)
@@ -166,8 +173,10 @@ class TestAllanVariance(unittest.TestCase):
 
         averages_map = {}
         for period_time in periods:
-            current_average = av.compute_bin_averages(self.measurements,
-                                                      period_time)
+            max_bin_size = int(period_time * av.measure_rate())
+            overlap = int(np.floor(max_bin_size * av.overlap()))
+            current_average = compute_bin_averages(self.measurements,
+                                                   max_bin_size, overlap)
             averages_map[period_time] = current_average
 
         actual_allan_variances = av.compute_allan_variance(self.measurements,
