@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 """
 python scripts/analyze_rosbag.py config/sim.yaml imu_simulation.bag
 """

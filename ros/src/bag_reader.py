@@ -15,16 +15,6 @@ from tqdm import tqdm
 from allan_variance import AllanVariance
 from allan_variance.imu_data import ImuMeasurement
 
-# import yaml
-# from geometry_msgs.msg import PoseWithCovarianceStamped, TransformStamped
-# from sensor_msgs.msg import Imu
-# from tf2_msgs.msg import TFMessage
-
-#pylint: disable=import-error,wrong-import-order
-
-# from data_reader.data_structs import (ImuMeasurement, JointState, PoseWithCov,
-#                                       StateEstimate, Transform)
-
 
 def parse_args():
     """Parse command line arguments"""
