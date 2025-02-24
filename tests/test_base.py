@@ -7,7 +7,8 @@ import numpy as np
 import yaml
 
 from allan_variance import AllanVariance
-from allan_variance.statistics import compute_bin_averages
+from allan_variance.statistics import (compute_allan_variance,
+                                       compute_bin_averages)
 
 
 class SlowAllanVariance:
@@ -179,8 +180,11 @@ class TestAllanVariance(unittest.TestCase):
                                                    max_bin_size, overlap)
             averages_map[period_time] = current_average
 
-        actual_allan_variances = av.compute_allan_variance(self.measurements,
-                                                           periods=periods)
+        actual_allan_variances = compute_allan_variance(
+            self.measurements,
+            periods=periods,
+            measure_rate=av.measure_rate(),
+            overlap=av.overlap())
         expected_allan_variances = slow_av.compute_allan_variance(
             averages_map=averages_map, periods=periods)
 

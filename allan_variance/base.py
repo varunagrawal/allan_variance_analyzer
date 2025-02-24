@@ -6,10 +6,9 @@ from typing import Union
 import numpy as np
 import yaml
 from loguru import logger
-from tqdm import tqdm
 
 from allan_variance.analysis import analyze
-from allan_variance.statistics import compute_bin_averages
+from allan_variance.statistics import compute_allan_variance
 
 FilePath = Union[str, Path]
 
@@ -82,38 +81,6 @@ class AllanVariance(Config):
         """Run Allan Variance"""
         return self.run(data)
 
-    def compute_allan_variance(self, data, periods: np.ndarray):
-        """Compute the Allan Variance given the averages map.
-
-        Args:
-            period_min (float): The minimum period time.
-            period_max (float): The maximum period time.
-
-        Returns:
-            List[np.ndarray]: Allan Variances for various time periods
-                from `period_min` to `period_max`.
-        """
-        logger.info("Computing Allan Variances")
-
-        # Pre-allocate the Allan Variances
-        allan_variances = np.empty(periods.shape + (6, ))
-
-        for idx, period_time in tqdm(enumerate(periods), total=len(periods)):
-            max_bin_size = int(period_time * self.measure_rate_)
-            overlap = int(np.floor(max_bin_size * self.overlap_))
-
-            # Compute the bin averages in the same loop
-            # This saves memory and is faster
-            averages = compute_bin_averages(data, max_bin_size, overlap)
-            n = len(averages)
-
-            d = np.sum(np.power(averages[1:] - averages[:-1], 2), axis=0)
-            allan_variance = d / (2 * (n - 1))
-
-            allan_variances[idx] = allan_variance
-
-        return allan_variances
-
     def write_deviations(self, periods: np.ndarray,
                          allan_deviations: np.ndarray):
         """Helper method to write the Allan Deviations to file."""
@@ -136,7 +103,10 @@ class AllanVariance(Config):
 
         periods = np.arange(self.period_min, self.period_max, step=0.1)
 
-        allan_variances = self.compute_allan_variance(data, periods=periods)
+        logger.info("Computing Allan Variances")
+        allan_variances = compute_allan_variance(data, periods,
+                                                 self.measure_rate_,
+                                                 self.overlap_)
 
         allan_deviations = np.sqrt(allan_variances)
 
