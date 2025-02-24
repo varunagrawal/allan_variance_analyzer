@@ -46,11 +46,11 @@ def compute_allan_variance(data, periods, measure_rate=10, overlap=0.5):
     print("computing bin averages")
     for idx, period_time in tqdm(enumerate(periods), total=len(periods)):
         max_bin_size = int(period_time * measure_rate)
-        overlap = int(np.floor(max_bin_size * overlap))
+        bin_overlap = int(np.floor(max_bin_size * overlap))
 
         # Compute the bin averages in the same loop
         # This saves memory and is faster
-        averages = compute_bin_averages(data, max_bin_size, overlap)
+        averages = compute_bin_averages(data, max_bin_size, bin_overlap)
         n = len(averages)
 
         d = np.sum(np.power(averages[1:] - averages[:-1], 2), axis=0)
