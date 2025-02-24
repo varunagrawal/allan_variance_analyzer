@@ -1,26 +1,30 @@
 """Various functions for computing statistics on data."""
 
+from functools import partial
+
+import jax
+import jax.numpy as jnp
 import numpy as np
 from tqdm import tqdm
 
 
+@partial(jax.jit, static_argnums=(1, 2))
 def compute_bin_averages(data: np.ndarray, max_bin_size: int, overlap: int):
     """
     Compute the averages over bins of size `max_bin_size`,
     with `overlap` amount of overlap.
     """
-    indices = np.arange(0, data.shape[0] - max_bin_size,
-                        max_bin_size - overlap)
+    def f(data, j):
+        current_average = jnp.zeros(6)
+        for m in range(max_bin_size):
+            current_average += data[j + m]
 
-    # reduceat adds everything after the last index,
-    # so we update the end
-    data_ = data[:indices[-1] + max_bin_size]
-
-    current_average = np.add.reduceat(data_, indices=indices, axis=0)
-
-    current_average = current_average / max_bin_size
-
-    return current_average
+        current_average /= max_bin_size
+        return data, current_average
+    
+    _, averages = jax.lax.scan(f, data, jnp.arange(0, data.shape[0] - max_bin_size, max_bin_size - overlap))
+    
+    return averages
 
 
 def compute_allan_variance(data, periods, measure_rate=10, overlap=0.5):
@@ -37,8 +41,9 @@ def compute_allan_variance(data, periods, measure_rate=10, overlap=0.5):
                 from `period_min` to `period_max`.
         """
     # Pre-allocate the Allan Variances
-    allan_variances = np.empty(periods.shape + (6, ))
+    allan_variances = jnp.empty(periods.shape + (6, ))
 
+    print("computing bin averages")
     for idx, period_time in tqdm(enumerate(periods), total=len(periods)):
         max_bin_size = int(period_time * measure_rate)
         overlap = int(np.floor(max_bin_size * overlap))
@@ -51,6 +56,6 @@ def compute_allan_variance(data, periods, measure_rate=10, overlap=0.5):
         d = np.sum(np.power(averages[1:] - averages[:-1], 2), axis=0)
         allan_variance = d / (2 * (n - 1))
 
-        allan_variances[idx] = allan_variance
+        allan_variances.at[idx].set(allan_variance)
 
     return allan_variances
