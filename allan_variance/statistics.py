@@ -14,6 +14,7 @@ def compute_bin_averages(data: np.ndarray, max_bin_size: int, overlap: int):
     Compute the averages over bins of size `max_bin_size`,
     with `overlap` amount of overlap.
     """
+
     def f(data, j):
         current_average = jnp.zeros(6)
         for m in range(max_bin_size):
@@ -21,9 +22,11 @@ def compute_bin_averages(data: np.ndarray, max_bin_size: int, overlap: int):
 
         current_average /= max_bin_size
         return data, current_average
-    
-    _, averages = jax.lax.scan(f, data, jnp.arange(0, data.shape[0] - max_bin_size, max_bin_size - overlap))
-    
+
+    _, averages = jax.lax.scan(
+        f, data,
+        jnp.arange(0, data.shape[0] - max_bin_size, max_bin_size - overlap))
+
     return averages
 
 
