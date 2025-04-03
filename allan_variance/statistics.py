@@ -5,7 +5,6 @@ from functools import partial
 import jax
 import jax.numpy as jnp
 import numpy as np
-from tqdm import tqdm
 
 
 @partial(jax.jit, static_argnums=(1, 2))
@@ -43,22 +42,23 @@ def compute_allan_variance(data, periods, measure_rate=10, overlap=0.5):
             List[np.ndarray]: Allan Variances for various time periods
                 from `period_min` to `period_max`.
         """
-    # Pre-allocate the Allan Variances
-    allan_variances = jnp.empty(periods.shape + (6, ))
 
-    print("computing bin averages")
-    for idx, period_time in tqdm(enumerate(periods), total=len(periods)):
-        max_bin_size = int(period_time * measure_rate)
-        bin_overlap = int(np.floor(max_bin_size * overlap))
+    #TODO: This doesn't seem to work. I will need to rethink the full implementation.
 
-        # Compute the bin averages in the same loop
-        # This saves memory and is faster
+    def f(data, period_time):
+        max_bin_size = (period_time * measure_rate).astype(int)
+        bin_overlap = (jnp.floor(max_bin_size * overlap)).astype(int)
+
         averages = compute_bin_averages(data, max_bin_size, bin_overlap)
         n = len(averages)
 
-        d = np.sum(np.power(averages[1:] - averages[:-1], 2), axis=0)
+        d = jnp.sum(jnp.power(averages[1:] - averages[:-1], 2), axis=0)
         allan_variance = d / (2 * (n - 1))
 
-        allan_variances.at[idx].set(allan_variance)
+        return allan_variance
+
+    # Vectorize the function over periods
+    f_vectorized = jax.vmap(f, in_axes=(None, 0))
+    _, allan_variances = f_vectorized(data, periods)
 
     return allan_variances
