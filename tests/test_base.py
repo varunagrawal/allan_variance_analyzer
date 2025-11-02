@@ -31,7 +31,7 @@ class SlowAllanVariance:
 
         self.imu_skip_ = self.imu_rate_ // self.measure_rate_
 
-        self.imu_output_file_ = Path(output_path) / "allan_variance.csv"
+        self.allan_variance_file_ = Path(output_path) / "allan_variance.csv"
 
         self.overlap_ = overlap
 

@@ -64,7 +64,7 @@ class AllanVariance(Config):
 
         super().__init__(config_file=config_file)
 
-        self.imu_output_file_ = Path(output_path) / "allan_variance.csv"
+        self.allan_variance_file_ = Path(output_path) / "allan_variance.csv"
 
         self.overlap_ = overlap
 
@@ -84,8 +84,8 @@ class AllanVariance(Config):
     def write_deviations(self, periods: np.ndarray,
                          allan_deviations: np.ndarray):
         """Helper method to write the Allan Deviations to file."""
-        logger.info("Writing Allan Deviations to allan_variance.csv")
-        with open("allan_variance.csv", 'w+') as av_writer:
+        logger.info(f"Writing Allan Deviations to {self.allan_variance_file_}")
+        with open(self.allan_variance_file_, 'w+') as av_writer:
             for period, allan_deviation in zip(periods, allan_deviations):
                 allan_deviation_str = " ".join(allan_deviation.tolist())
                 av_writer.write(f"{period} {allan_deviation_str}\n")
