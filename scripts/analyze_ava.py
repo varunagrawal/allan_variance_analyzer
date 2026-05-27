@@ -3,7 +3,7 @@ Script to help analyze allan_variances.csv file.
 
 python analyze_ava.py allan_variance.csv
 
-E.g. python analyze_ava.py ../tests/fixtures/allan_variance.csv
+E.g. python scripts/analyze_ava.py tests/fixtures/allan_variance.csv
 """
 
 import argparse
@@ -16,16 +16,13 @@ from allan_variance.analysis import analyze
 def parse_arguments():
     """Parse command line arguments."""
     parser = argparse.ArgumentParser()
-    parser.add_argument('csv')
-    parser.add_argument('--imu_rate', default=400, type=int)
+    parser.add_argument("csv")
+    parser.add_argument("--imu_rate", default=400, type=int)
     return parser.parse_args()
 
 
 args = parse_arguments()
-data = np.loadtxt(args.csv,
-                  delimiter=' ',
-                  dtype=float,
-                  usecols=(0, 1, 2, 3, 4, 5, 6))
+data = np.loadtxt(args.csv, delimiter=" ", dtype=float, usecols=(0, 1, 2, 3, 4, 5, 6))
 
 periods = data[:, 0].astype(float)
 allan_deviations = data[:, 1:7].astype(float)

@@ -29,14 +29,14 @@ def compute_bin_averages(data: np.ndarray, max_bin_size: int, overlap: int):
     return averages
 
 
-def compute_allan_variance(data, periods, measure_rate=10, overlap=0.5):
+def compute_allan_variances(data, periods, measure_rate=10, overlap=0.5):
     """Compute the Allan Variance given the averages map.
 
-        Args:
-            periods (np.ndarray): The time periods between period_min and period_max with step 0.1.
-            period_max (float): The maximum period time.
-            measure_rate (float): The measurement rate of the IMU.
-            overlap (float): The overlap between bins.
+    Args:
+        periods (np.ndarray): The time periods between period_min and period_max with step 0.1.
+        period_max (float): The maximum period time.
+        measure_rate (float): The measurement rate of the IMU.
+        overlap (float): The overlap between bins.
 
         Returns:
             List[np.ndarray]: Allan Variances for various time periods

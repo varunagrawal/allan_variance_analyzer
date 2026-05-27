@@ -25,5 +25,5 @@ class TestImuMeasurement(unittest.TestCase):
         """Test the asarray method"""
         measurement = ImuMeasurement(self.ts, self.a, self.w)
         np.testing.assert_allclose(
-            measurement.asarray(), np.asarray([123456, 1, 2, 3, 0.9, 0.8,
-                                               0.7]))
+            measurement.asarray(), np.asarray([123456, 1, 2, 3, 0.9, 0.8, 0.7])
+        )

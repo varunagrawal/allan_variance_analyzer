@@ -14,13 +14,15 @@ from allan_variance import FilePath, ImuMeasurement
 class ROSBagReader:
     """Class to read ROS bag data without the need to install ROS."""
 
-    def __init__(self,
-                 rosbag_path: FilePath,
-                 topic: str,
-                 imu_rate: float,
-                 sequence_time: float,
-                 imu_skip: float,
-                 typestore=Stores.ROS1_NOETIC):
+    def __init__(
+        self,
+        rosbag_path: FilePath,
+        topic: str,
+        imu_rate: float,
+        sequence_time: float,
+        imu_skip: float,
+        typestore=Stores.ROS1_NOETIC,
+    ):
         self.rosbag_path = Path(rosbag_path)
         self.topic = topic  #  "/sensors/imu"
         self.imu_rate_ = imu_rate
@@ -37,19 +39,19 @@ class ROSBagReader:
         logger.info(f"Loading bag from path: {self.rosbag_path}")
 
         # Create reader instance and open for reading.
-        with AnyReader([self.rosbag_path],
-                       default_typestore=self.typestore) as reader:
-
+        with AnyReader([self.rosbag_path], default_typestore=self.typestore) as reader:
             messages = reader.messages(connections=reader.connections)
 
-            for counter, message in tqdm(enumerate(messages),
-                                         total=reader.message_count):
+            for counter, message in tqdm(
+                enumerate(messages), total=reader.message_count
+            ):
                 connection, timestamp, rawdata = message
 
                 if connection.topic == self.topic:
                     # Subsample IMU measurements
-                    if ((counter + 1) % self.imu_skip_ != 0) \
-                                or (counter / self.imu_rate_ > self.sequence_time_):
+                    if ((counter + 1) % self.imu_skip_ != 0) or (
+                        counter / self.imu_rate_ > self.sequence_time_
+                    ):
                         continue
 
                     msg = reader.deserialize(rawdata, connection.msgtype)
@@ -57,14 +59,20 @@ class ROSBagReader:
                     timestamp = msg.header.stamp
                     ts_ns = timestamp.sec * 1000000000 + timestamp.nanosec
 
-                    w = np.asarray([
-                        msg.angular_velocity.x, msg.angular_velocity.y,
-                        msg.angular_velocity.z
-                    ])
-                    a = np.asarray([
-                        msg.linear_acceleration.x, msg.linear_acceleration.y,
-                        msg.linear_acceleration.z
-                    ])
+                    w = np.asarray(
+                        [
+                            msg.angular_velocity.x,
+                            msg.angular_velocity.y,
+                            msg.angular_velocity.z,
+                        ]
+                    )
+                    a = np.asarray(
+                        [
+                            msg.linear_acceleration.x,
+                            msg.linear_acceleration.y,
+                            msg.linear_acceleration.z,
+                        ]
+                    )
                     imu_buffer.append(ImuMeasurement(ts_ns, a, w).asarray())
 
         logger.info("Loaded all the data")

@@ -7,27 +7,28 @@ import numpy as np
 import yaml
 
 from allan_variance import AllanVariance
-from allan_variance.statistics import (compute_allan_variance,
-                                       compute_bin_averages)
+from allan_variance.statistics import compute_allan_variances, compute_bin_averages
 
 
 class SlowAllanVariance:
     """A naive implementation of the Allan Variance computations."""
 
-    def __init__(self,
-                 config_file,
-                 output_path,
-                 overlap: int = 0,
-                 period_min=0.1,
-                 period_max=1000):
-        with open(config_file, 'r') as stream:
+    def __init__(
+        self,
+        config_file,
+        output_path,
+        overlap: int = 0,
+        period_min=0.1,
+        period_max=1000,
+    ):
+        with open(config_file, "r") as stream:
             self.config_ = yaml.safe_load(stream)
 
         self.first_msg_ = True
-        self.imu_topic_ = self.config_['imu_topic']
-        self.imu_rate_ = self.config_['imu_rate']
-        self.measure_rate_ = self.config_['measure_rate']
-        self.sequence_time_ = self.config_['sequence_time']
+        self.imu_topic_ = self.config_["imu_topic"]
+        self.imu_rate_ = self.config_["imu_rate"]
+        self.measure_rate_ = self.config_["measure_rate"]
+        self.sequence_time_ = self.config_["sequence_time"]
 
         self.imu_skip_ = self.imu_rate_ // self.measure_rate_
 
@@ -45,9 +46,7 @@ class SlowAllanVariance:
 
         averages = []
 
-        for j in range(0, data.shape[0] - max_bin_size,
-                       max_bin_size - overlap):
-
+        for j in range(0, data.shape[0] - max_bin_size, max_bin_size - overlap):
             current_average = np.zeros(6)
             for m in range(max_bin_size):
                 current_average[0] += data[j + m, 0]
@@ -69,8 +68,8 @@ class SlowAllanVariance:
 
         return np.asarray(averages)
 
-    def compute_allan_variance(self, averages_map, periods):
-        """Test compute_allan_variance method"""
+    def compute_allan_variances(self, averages_map, periods):
+        """Compute the Allan Variance across different time periods given the averages map."""
         allan_variances = []
         for period_time in periods:
             averages = averages_map[period_time]
@@ -78,18 +77,12 @@ class SlowAllanVariance:
 
             allan_variance = np.zeros(6)
             for k in range(num_averages - 1):
-                allan_variance[0] += np.power(
-                    averages[k + 1, 0] - averages[k, 0], 2)
-                allan_variance[1] += np.power(
-                    averages[k + 1, 1] - averages[k, 1], 2)
-                allan_variance[2] += np.power(
-                    averages[k + 1, 2] - averages[k, 2], 2)
-                allan_variance[3] += np.power(
-                    averages[k + 1, 3] - averages[k, 3], 2)
-                allan_variance[4] += np.power(
-                    averages[k + 1, 4] - averages[k, 4], 2)
-                allan_variance[5] += np.power(
-                    averages[k + 1, 5] - averages[k, 5], 2)
+                allan_variance[0] += np.power(averages[k + 1, 0] - averages[k, 0], 2)
+                allan_variance[1] += np.power(averages[k + 1, 1] - averages[k, 1], 2)
+                allan_variance[2] += np.power(averages[k + 1, 2] - averages[k, 2], 2)
+                allan_variance[3] += np.power(averages[k + 1, 3] - averages[k, 3], 2)
+                allan_variance[4] += np.power(averages[k + 1, 4] - averages[k, 4], 2)
+                allan_variance[5] += np.power(averages[k + 1, 5] - averages[k, 5], 2)
 
             avar = allan_variance / (2 * (num_averages - 1))
 
@@ -108,8 +101,9 @@ class SlowAllanVariance:
             current_average = self.compute_bin_averages(data, period_time)
             averages_map[period_time] = current_average
 
-        allan_variances = self.compute_allan_variance(
-            averages_map=averages_map, periods=periods)
+        allan_variances = self.compute_allan_variances(
+            averages_map=averages_map, periods=periods
+        )
 
         return allan_variances
 
@@ -127,8 +121,7 @@ class TestAllanVariance(unittest.TestCase):
 
     def setUp(self):
         self.config_file = get_config_file()
-        data = np.loadtxt(current_dir / "fixtures" / "measurements.csv",
-                          delimiter=",")
+        data = np.loadtxt(current_dir / "fixtures" / "measurements.csv", delimiter=",")
         self.measurements = data[:, 2:8]
         # Convert gyro measurements from radians to degrees
         # data.at[:, 3:6].set(jnp.rad2deg(data[:, 3:6]))
@@ -139,8 +132,8 @@ class TestAllanVariance(unittest.TestCase):
 
         av = AllanVariance(self.config_file, ".")
 
-        self.assertEqual(av.config('imu_rate'), 400)
-        self.assertEqual(av.config('measure_rate'), 400)
+        self.assertEqual(av.config("imu_rate"), 400)
+        self.assertEqual(av.config("measure_rate"), 400)
 
     def test_compute_bin_averages(self):
         """Test the compute_bin_averages method"""
@@ -148,8 +141,7 @@ class TestAllanVariance(unittest.TestCase):
 
         max_bin_size = int(0.1 * av.measure_rate())
         overlap = int(np.floor(max_bin_size * av.overlap()))
-        actual_average = compute_bin_averages(self.measurements, max_bin_size,
-                                              overlap)
+        actual_average = compute_bin_averages(self.measurements, max_bin_size, overlap)
         slow_av = SlowAllanVariance(self.config_file, ".")
         expected_average = slow_av.compute_bin_averages(self.measurements, 0.1)
 
@@ -158,16 +150,16 @@ class TestAllanVariance(unittest.TestCase):
         for period_time in np.arange(0.1, 2, step=0.1):
             max_bin_size = int(period_time * av.measure_rate())
             overlap = int(np.floor(max_bin_size * av.overlap()))
-            actual_average = compute_bin_averages(self.measurements,
-                                                  max_bin_size, overlap)
+            actual_average = compute_bin_averages(
+                self.measurements, max_bin_size, overlap
+            )
             expected_average = slow_av.compute_bin_averages(
-                self.measurements, period_time)
-            np.testing.assert_allclose(expected_average,
-                                       actual_average,
-                                       atol=1e-6)
+                self.measurements, period_time
+            )
+            np.testing.assert_allclose(expected_average, actual_average, atol=1e-6)
 
     def test_compute_allan_variance(self):
-        """Test compute_allan_variance method."""
+        """Test compute_allan_variances method."""
         av = AllanVariance(self.config_file, ".")
         slow_av = SlowAllanVariance(self.config_file, ".")
 
@@ -179,22 +171,25 @@ class TestAllanVariance(unittest.TestCase):
         for period_time in periods:
             max_bin_size = int(period_time * av.measure_rate())
             overlap = int(np.floor(max_bin_size * av.overlap()))
-            current_average = compute_bin_averages(self.measurements,
-                                                   max_bin_size, overlap)
+            current_average = compute_bin_averages(
+                self.measurements, max_bin_size, overlap
+            )
             averages_map[period_time] = current_average
 
-        actual_allan_variances = compute_allan_variance(
+        actual_allan_variances = compute_allan_variances(
             self.measurements,
             periods=periods,
             measure_rate=av.measure_rate(),
-            overlap=av.overlap())
-        expected_allan_variances = slow_av.compute_allan_variance(
-            averages_map=averages_map, periods=periods)
+            overlap=av.overlap(),
+        )
+        expected_allan_variances = slow_av.compute_allan_variances(
+            averages_map=averages_map, periods=periods
+        )
 
         actual_allan_variances = np.asarray(actual_allan_variances)
         _, expected_allan_variances = zip(*expected_allan_variances)
         expected_allan_variances = np.asarray(expected_allan_variances)
 
-        np.testing.assert_allclose(expected_allan_variances,
-                                   actual_allan_variances,
-                                   atol=1e-4)
+        np.testing.assert_allclose(
+            expected_allan_variances, actual_allan_variances, atol=1e-4
+        )

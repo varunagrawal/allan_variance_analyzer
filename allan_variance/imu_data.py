@@ -6,8 +6,12 @@ import numpy as np
 class ImuMeasurement:
     """Class representing an IMU measurement."""
 
-    def __init__(self, timestamp: float, linear_acceleration: np.ndarray,
-                 angular_velocity: np.ndarray):
+    def __init__(
+        self,
+        timestamp: float,
+        linear_acceleration: np.ndarray,
+        angular_velocity: np.ndarray,
+    ):
         """Constructor
 
         Args:
