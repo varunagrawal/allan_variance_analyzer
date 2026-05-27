@@ -21,8 +21,9 @@ def main():
     """Main runner"""
     args = parse_args()
     av = AllanVariance(args.config, ".")
-    bag_reader = ROSBagReader(args.rosbag, av.imu_topic(), av.imu_rate(),
-                              av.sequence_time(), av.imu_skip_)
+    bag_reader = ROSBagReader(
+        args.rosbag, av.imu_topic(), av.imu_rate(), av.sequence_time(), av.imu_skip_
+    )
     data = bag_reader.read()
     av.run(data[:, 1:])
 

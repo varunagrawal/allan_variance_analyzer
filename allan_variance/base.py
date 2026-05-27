@@ -8,7 +8,7 @@ import yaml
 from loguru import logger
 
 from allan_variance.analysis import analyze
-from allan_variance.statistics import compute_allan_variance
+from allan_variance.statistics import compute_allan_variances
 
 FilePath = Union[str, Path]
 
@@ -17,13 +17,13 @@ class Config:
     """Class for storing IMU configuration info."""
 
     def __init__(self, config_file: FilePath):
-        with open(config_file, 'r') as stream:
+        with open(config_file, "r") as stream:
             self.config_ = yaml.safe_load(stream)
 
-        self.imu_topic_ = self.config_['imu_topic']
-        self.imu_rate_ = self.config_['imu_rate']
-        self.measure_rate_ = self.config_['measure_rate']
-        self.sequence_time_ = self.config_['sequence_time']
+        self.imu_topic_ = self.config_["imu_topic"]
+        self.imu_rate_ = self.config_["imu_rate"]
+        self.measure_rate_ = self.config_["measure_rate"]
+        self.sequence_time_ = self.config_["sequence_time"]
 
         self.imu_skip_ = self.imu_rate_ // self.measure_rate_
 
@@ -54,13 +54,15 @@ class Config:
 class AllanVariance(Config):
     """Main class to perform Allan Variance Analysis"""
 
-    def __init__(self,
-                 config_file: FilePath,
-                 output_path: FilePath,
-                 overlap: int = 0,
-                 period_min: float = 0.1,
-                 period_max: float = 1000,
-                 write_allan_deviations=False):
+    def __init__(
+        self,
+        config_file: FilePath,
+        output_path: FilePath,
+        overlap: int = 0,
+        period_min: float = 0.1,
+        period_max: float = 1000,
+        write_allan_deviations=False,
+    ):
 
         super().__init__(config_file=config_file)
 
@@ -81,11 +83,10 @@ class AllanVariance(Config):
         """Run Allan Variance"""
         return self.run(data)
 
-    def write_deviations(self, periods: np.ndarray,
-                         allan_deviations: np.ndarray):
+    def write_deviations(self, periods: np.ndarray, allan_deviations: np.ndarray):
         """Helper method to write the Allan Deviations to file."""
         logger.info(f"Writing Allan Deviations to {self.allan_variance_file_}")
-        with open(self.allan_variance_file_, 'w+') as av_writer:
+        with open(self.allan_variance_file_, "w+") as av_writer:
             for period, allan_deviation in zip(periods, allan_deviations):
                 allan_deviation_str = " ".join(allan_deviation.tolist())
                 av_writer.write(f"{period} {allan_deviation_str}\n")
@@ -104,9 +105,9 @@ class AllanVariance(Config):
         periods = np.arange(self.period_min, self.period_max, step=0.1)
 
         logger.info("Computing Allan Variances")
-        allan_variances = compute_allan_variance(data, periods,
-                                                 self.measure_rate_,
-                                                 self.overlap_)
+        allan_variances = compute_allan_variances(
+            data, periods, self.measure_rate_, self.overlap_
+        )
 
         allan_deviations = np.sqrt(allan_variances)
 
