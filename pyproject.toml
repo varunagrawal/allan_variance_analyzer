@@ -1,42 +1,43 @@
-[tool.poetry]
+[project]
 name = "allan_variance"
 version = "1.0.0"
 description = "Tools for Allan Variance Analysis"
+authors = [{ name = "Varun Agrawal", email = "varunagrawal@gatech.edu" }]
+readme = "README.md"
+license = { text = "BSD 3-Clause License" }
+keywords = ['Research', 'Inertial', 'Allan Variance']
 
-license = "BSD 3-Clause License"
+requires-python = ">= 3.10"
 
-authors = ["Varun Agrawal <varunagrawal@gatech.edu>"]
+dependencies = [
+  "numpy>=2.2.4",
+  "jax>=0.4.38",
+  "pyaml>=21.10.1",
+  "attrdict>=2.0.1",
+  "tqdm>=4.62.2",
+  "loguru>=0.6.0",
+  "rosbags>=0.10.4",
+  "matplotlib>=3.10.7",
+]
 
-readme = './README.md' # Markdown files are supported
-
+[project.urls]
 repository = "https://github.com/varunagrawal/allan_variance"
 homepage = "https://github.com/varunagrawal/allan_variance"
 
-keywords = ['Research', 'Inertial', 'Allan Variance']
-
-packages = [{ include = "allan_variance" }]
-exclude = ["config", "ros", "ros2", "simulator"]
-
-[tool.poetry.dependencies]
-python = "^3.10"
-numpy = "*"
-jax = "^0.4.38"
-matplotlib = "*"
-scipy = "*"
-setuptools = "^75.1.0"
-pyaml = "^21.10.1"
-attrdict = "^2.0.1"
-tqdm = "^4.62.2"
-loguru = "^0.6.0"
-rosbags = "^0.10.4"
-
-[tool.poetry.dev-dependencies]
-build = "^0.7.0"
-pytest = "^7.1.1"
-pylint = "^2.13.2"
-
-[tool.poetry.scripts]
+[project.optional-dependencies]
+dev = ["pytest>=7.1.1", "pylint>=2.13.2"]
 
 [build-system]
-requires = ["setuptools"]
+requires = ["setuptools>=42", "wheel"]
 build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+include = ["allan_variance"]
+exclude = ["config", "ros", "ros2", "simulator"]
+namespaces = false
+
+[tool.setuptools.package-data]
+roboplot = ["py.typed", "*.pyi", "**/*.pyi"]
+
+[tool.mypy]
+ignore_missing_imports = true
