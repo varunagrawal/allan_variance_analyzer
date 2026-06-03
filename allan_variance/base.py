@@ -88,7 +88,8 @@ class AllanVariance(Config):
         logger.info(f"Writing Allan Deviations to {self.allan_variance_file_}")
         with open(self.allan_variance_file_, "w+") as av_writer:
             for period, allan_deviation in zip(periods, allan_deviations):
-                allan_deviation_str = " ".join(allan_deviation.tolist())
+                # Convert to string for writing to file
+                allan_deviation_str = " ".join(map(str, allan_deviation.tolist()))
                 av_writer.write(f"{period} {allan_deviation_str}\n")
 
     def run(self, data: np.ndarray):
