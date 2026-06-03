@@ -3,12 +3,13 @@
 from pathlib import Path
 from typing import Union
 
-import jax.numpy as np
+import jax.numpy as jnp
+import numpy as np
 import yaml
 from loguru import logger
 
 from allan_variance.analysis import analyze
-from allan_variance.statistics import compute_allan_variances
+from allan_variance.statistics import compute_allan_deviations
 
 FilePath = Union[str, Path]
 
@@ -102,16 +103,17 @@ class AllanVariance(Config):
         # Assuming gyro data is in radians, convert to degrees
         data[:, 3:6] = np.rad2deg(data[:, 3:6])
 
+        # Convert to Jax array
+        data = jnp.asarray(data)
+
         periods = np.arange(self.period_min, self.period_max, step=0.1)
 
         logger.info("Computing Allan Variances")
-        allan_variances = compute_allan_variances(
+        allan_deviations = compute_allan_deviations(
             data, periods, self.measure_rate_, self.overlap_
         )
-
-        allan_deviations = np.sqrt(allan_variances)
 
         if self.write_allan_deviations_:
             self.write_deviations(periods, allan_deviations)
 
-        analyze(periods, allan_deviations, self.imu_rate_)
+        analyze(periods, np.asarray(allan_deviations), self.imu_rate_)

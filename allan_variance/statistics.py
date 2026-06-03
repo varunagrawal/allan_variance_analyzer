@@ -1,64 +1,184 @@
-"""Various functions for computing statistics on data."""
-
 from functools import partial
 
 import jax
 import jax.numpy as jnp
 import numpy as np
 
+# ============================================================================
+# Internal utilities
+# ============================================================================
 
-@partial(jax.jit, static_argnums=(1, 2))
-def compute_bin_averages(data: np.ndarray, max_bin_size: int, overlap: int):
+
+def _prepare_signal(data):
     """
-    Compute the averages over bins of size `max_bin_size`,
-    with `overlap` amount of overlap.
+    Ensure signal has shape (N, D).
     """
 
-    def f(data, j):
-        current_average = jnp.zeros(6)
-        for m in range(max_bin_size):
-            current_average += data[j + m]
+    data = jnp.asarray(data)
 
-        current_average /= max_bin_size
-        return data, current_average
+    if data.ndim == 1:
+        data = data[:, None]
 
-    _, averages = jax.lax.scan(
-        f, data,
-        jnp.arange(0, data.shape[0] - max_bin_size, max_bin_size - overlap))
+    if data.ndim != 2:
+        raise ValueError("Input must have shape (N,) or (N,D).")
 
-    return averages
+    return data
 
 
-def compute_allan_variances(data, periods, measure_rate=10, overlap=0.5):
-    """Compute the Allan Variance given the averages map.
+def _compute_cumsum(data):
+    """
+    Compute cumulative sum with prepended zero row.
 
-    Args:
-        periods (np.ndarray): The time periods between period_min and period_max with step 0.1.
-        period_max (float): The maximum period time.
-        measure_rate (float): The measurement rate of the IMU.
-        overlap (float): The overlap between bins.
+    Parameters
+    ----------
+    data : (N, D)
 
-        Returns:
-            List[np.ndarray]: Allan Variances for various time periods
-                from `period_min` to `period_max`.
-        """
+    Returns
+    -------
+    cumsum : (N+1, D)
+    """
 
-    #TODO: This doesn't seem to work. I will need to rethink the full implementation.
+    D = data.shape[1]
 
-    def f(data, period_time):
-        max_bin_size = (period_time * measure_rate).astype(int)
-        bin_overlap = (jnp.floor(max_bin_size * overlap)).astype(int)
+    return jnp.concatenate(
+        [
+            jnp.zeros((1, D), dtype=data.dtype),
+            jnp.cumsum(data, axis=0),
+        ],
+        axis=0,
+    )
 
-        averages = compute_bin_averages(data, max_bin_size, bin_overlap)
-        n = len(averages)
 
-        d = jnp.sum(jnp.power(averages[1:] - averages[:-1], 2), axis=0)
-        allan_variance = d / (2 * (n - 1))
+# ============================================================================
+# Single-tau Allan variance kernel
+# ============================================================================
 
-        return allan_variance
 
-    # Vectorize the function over periods
-    f_vectorized = jax.vmap(f, in_axes=(None, 0))
-    _, allan_variances = f_vectorized(data, periods)
+@partial(
+    jax.jit,
+    static_argnames=("bin_size", "overlap"),
+)
+def _allan_variance_single_tau(
+    cumsum,
+    bin_size,
+    overlap=0.5,
+):
+    """
+    Compute Allan variance for a single tau.
 
-    return allan_variances
+    Parameters
+    ----------
+    cumsum : (N+1, D)
+        Precomputed cumulative sum.
+
+    bin_size : int
+        Averaging window size in samples.
+
+    overlap : float
+        Overlap fraction in [0,1).
+
+    Returns
+    -------
+    avar : (D,)
+        Allan variance for each channel.
+    """
+
+    N = cumsum.shape[0] - 1
+
+    stride = max(
+        1,
+        round(bin_size * (1.0 - overlap)),
+    )
+
+    starts = jnp.arange(
+        0,
+        N - bin_size + 1,
+        stride,
+    )
+
+    y = (cumsum[starts + bin_size] - cumsum[starts]) / bin_size
+
+    dy = y[1:] - y[:-1]
+
+    return 0.5 * jnp.mean(dy**2, axis=0)
+
+
+# ============================================================================
+# Public API
+# ============================================================================
+
+
+def compute_allan_deviations(
+    data,
+    periods,
+    sample_rate_hz,
+    overlap=0.5,
+):
+    """
+    Compute Allan deviation across specified periods.
+
+    Parameters
+    ----------
+    data : array-like
+        Input signal with shape:
+            (N,)
+            (N,D)
+
+        Example IMU:
+            (N,6)
+
+    periods : array-like
+        Averaging times (tau values) in seconds.
+
+    sample_rate_hz : float
+        Sensor sampling frequency.
+
+    overlap : float
+        Overlap fraction in [0,1).
+
+    Returns
+    -------
+    adev : jnp.ndarray
+        Allan deviations.
+
+        Shape:
+            (K,)     for 1D signal
+            (K,D)    for multi-axis signal
+
+        where:
+            K = len(periods)
+    """
+
+    data = _prepare_signal(data)
+
+    squeeze_output = False
+
+    if data.shape[1] == 1:
+        squeeze_output = True
+
+    # Precompute cumulative sum ONCE
+    cumsum = _compute_cumsum(data)
+
+    # Convert tau values -> bin sizes
+    bin_sizes = np.maximum(
+        1,
+        np.round(np.asarray(periods) * sample_rate_hz).astype(np.int32),
+    )
+
+    adevs = []
+
+    for m in bin_sizes:
+        avar = _allan_variance_single_tau(
+            cumsum,
+            bin_size=int(m),
+            overlap=overlap,
+        )
+
+        adevs.append(jnp.sqrt(avar))
+
+    adevs = jnp.stack(adevs)
+
+    if squeeze_output:
+        return adevs[:, 0]
+
+    return adevs
