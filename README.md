@@ -1,9 +1,10 @@
 # allan_variance
+
 Tools for Allan Variance Analysis
 
 ## TL;DR
 
-This is a faster and easier to use library for Allan Variance Analysis.
+This is a faster and easier-to-use library for Allan Variance Analysis.
 
 ### Faster
 
@@ -13,7 +14,7 @@ The popular [allan_variance_ros](https://github.com/ori-drs/allan_variance_ros) 
 
 Our library takes:
 
-`357.53s user 3.79s system 96% cpu 6:13.18 total`
+`40.64s user 2.04s system 91% cpu 46.558 total`
 
 which is an almost 2x speed improvement!
 
@@ -21,22 +22,22 @@ which is an almost 2x speed improvement!
 
 - There is no ROS dependency!
 - Since this library is written completely in Python, you can simple `import allan_variance` and use the tools.
-- Future updates may include accelerator support to run on parallel devices.
+- `pip` installable.
 
 ## README
 
-
-
 ## Local Development
 
-We use `poetry` to manage the project.
+We use `uv` to manage the project.
 
-First, tell `poetry` to use the system python:
+To run unit tests:
+
 ```sh
-poetry env use system
+uv run pytest
 ```
 
-After this, you can run the following and it should be accessible in your python environment
+To run an example script:
+
 ```sh
-poetry install
+ uv run python scripts/analyze_rosbag.py config/sim.yaml imu_simulation.bag
 ```
