@@ -4,22 +4,46 @@ import numpy as np
 from tqdm import tqdm
 
 
-def compute_bin_averages(data: np.ndarray, max_bin_size: int, overlap: int):
+def _compute_cumsum(data):
     """
-    Compute the averages over bins of size `max_bin_size`,
+    Compute cumulative sum with prepended zero row.
+
+    Parameters
+    ----------
+    data : (N, D)
+
+    Returns
+    -------
+    cumsum : (N+1, D)
+    """
+
+    D = data.shape[1]
+
+    return np.concatenate(
+        [
+            np.zeros((1, D), dtype=data.dtype),
+            np.cumsum(data, axis=0),
+        ],
+        axis=0,
+    )
+
+
+def compute_bin_averages(cumsum: np.ndarray, bin_size: int, overlap: int):
+    """
+    Compute the averages over bins of size `bin_size`,
     with `overlap` amount of overlap.
     """
-    indices = np.arange(0, data.shape[0] - max_bin_size, max_bin_size - overlap)
+    N = cumsum.shape[0] - 1
 
-    # reduceat adds everything after the last index,
-    # so we update the end
-    data_ = data[: indices[-1] + max_bin_size]
+    # Compute the stride for the sliding window based on the overlap
+    stride = max(1, round(bin_size * (1.0 - overlap)))
 
-    current_average = np.add.reduceat(data_, indices=indices, axis=0)
+    # Compute the starting indices of each bin
+    starts = np.arange(0, N - bin_size + 1, stride)
 
-    current_average = current_average / max_bin_size
+    averages = (cumsum[starts + bin_size] - cumsum[starts]) / bin_size
 
-    return current_average
+    return averages
 
 
 def compute_allan_variances(data, periods, measure_rate=10, overlap=0.5):
@@ -38,16 +62,21 @@ def compute_allan_variances(data, periods, measure_rate=10, overlap=0.5):
     # Pre-allocate the Allan Variances
     allan_variances = np.empty(periods.shape + (6,))
 
+    # Precompute the cumulative sum for efficient bin average computation
+    data_cumsum = _compute_cumsum(data)
+
     for idx, period_time in tqdm(enumerate(periods), total=len(periods)):
         max_bin_size = int(period_time * measure_rate)
         bin_overlap = int(np.floor(max_bin_size * overlap))
 
         # Compute the bin averages in the same loop
         # This saves memory and is faster
-        averages = compute_bin_averages(data, max_bin_size, bin_overlap)
+        averages = compute_bin_averages(data_cumsum, max_bin_size, bin_overlap)
+
         n = len(averages)
 
         d = np.sum(np.power(averages[1:] - averages[:-1], 2), axis=0)
+
         allan_variance = d / (2 * (n - 1))
 
         allan_variances[idx] = allan_variance
