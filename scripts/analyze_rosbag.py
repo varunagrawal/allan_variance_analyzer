@@ -24,7 +24,9 @@ def main():
     bag_reader = ROSBagReader(
         args.rosbag, av.imu_topic(), av.imu_rate(), av.sequence_time(), av.imu_skip_
     )
+    # Data is Tx7 with the first column being the timestamp and the next 6 columns being the IMU data.
     data = bag_reader.read()
+
     av.run(data[:, 1:])
 
 
