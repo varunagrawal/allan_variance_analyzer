@@ -2,7 +2,7 @@
 name = "allan_variance"
 version = "1.0.0"
 description = "Tools for Allan Variance Analysis"
-authors = [{ name = "Varun Agrawal", email = "varunagrawal@gatech.edu" }]
+authors = [{ name = "Varun Agrawal", email = "varagrawal@gmail.com" }]
 readme = "README.md"
 license = { text = "BSD 3-Clause License" }
 keywords = ['Research', 'Inertial', 'Allan Variance']
@@ -11,12 +11,10 @@ requires-python = ">= 3.10"
 
 dependencies = [
   "numpy>=2.2.4",
-  "jax>=0.4.38",
   "pyaml>=21.10.1",
   "attrdict>=2.0.1",
   "tqdm>=4.62.2",
   "loguru>=0.6.0",
-  "rosbags>=0.10.4",
   "matplotlib>=3.10.7",
 ]
 
@@ -27,10 +25,9 @@ homepage = "https://github.com/varunagrawal/allan_variance"
 [project.optional-dependencies]
 dev = ["pytest>=7.1.1", "pylint>=2.13.2"]
 
-
 [build-system]
-requires = ["setuptools>=42", "wheel"]
-build-backend = "setuptools.build_meta"
+requires = ["uv_build >= 0.11.23"]
+build-backend = "uv_build"
 
 [tool.setuptools.packages.find]
 include = ["allan_variance"]
