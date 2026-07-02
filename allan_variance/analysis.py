@@ -178,8 +178,6 @@ def plot_loglog(
     plt.tight_layout()
 
     plt.draw()
-    # plt.pause(1)
-    # w = plt.waitforbuttonpress(timeout=5)
     plt.close()
 
     fig.savefig(f"{measurement_type.lower()}.png", dpi=600, bbox_inches="tight")
@@ -221,7 +219,7 @@ def accelerometer_analysis(
     average_acc_bias_instability = accel_min.mean()
     average_acc_random_walk = accel_rr_intercept.mean()
 
-    # use worst value
+    # Use worst value
     worst_accel_white_noise = np.amax(accel_wn_intercept)
     worst_accel_random_walk = np.amax(accel_rr_intercept)
 
@@ -325,12 +323,12 @@ def write_imu_yaml(
     """
     print("Writing Kalibr imu.yaml file.")
     with open("imu.yaml", "w") as yaml_file:
-        yaml_file.write("#Accelerometer\n")
+        yaml_file.write("# Accelerometer\n")
         yaml_file.write(f"accelerometer_noise_density: {worst_accel_white_noise}\n")
         yaml_file.write(f"accelerometer_random_walk: {worst_accel_random_walk}\n")
         yaml_file.write("\n")
 
-        yaml_file.write("#Gyroscope\n")
+        yaml_file.write("# Gyroscope\n")
         # Convert back to radians here
         yaml_file.write(
             f"gyroscope_noise_density: {worst_gyro_white_noise * np.pi / 180}\n"
@@ -340,7 +338,7 @@ def write_imu_yaml(
         )
         yaml_file.write("\n")
 
-        yaml_file.write(f"update_rate: {update_rate} #Make sure this is correct\n")
+        yaml_file.write(f"update_rate: {update_rate} # Make sure this is correct\n")
 
     print("Make sure to update rostopic and rate.")
 
