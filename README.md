@@ -68,7 +68,7 @@ update_rate: 400.0 # Make sure this is correct
 If you use this package for academic work, please consider using the citation below:
 
 ```bib
-@software{FastAllanVariance,
+@software{AllanVarianceAnalyzer,
   author       = {Varun Agrawal},
   title        = {Fast Allan Variance Analysis},
   year         = {2026},
