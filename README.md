@@ -22,7 +22,7 @@ which is a 15x speed improvement!
 ## Easier
 
 - There is no ROS dependency! But still useable within ROS.
-- Since this library is written completely in Python, you can simple `import allan_variance` and use the tools.
+- Since this library is written completely in Python, you can simply do `import allan_variance_analyzer` to use it.
 - `pip` installable.
 - Outputs an `imu.yaml` file following the [Kalibr](https://github.com/ethz-asl/kalibr) format.
 
@@ -72,7 +72,7 @@ If you use this package for academic work, please consider using the citation be
   author       = {Varun Agrawal},
   title        = {Fast Allan Variance Analysis},
   year         = {2026},
-  version      = {1.0.0},
+  version      = {1.0.1},
   url          = {https://github.com/varunagrawal/allan_variance}
 }
 ```
