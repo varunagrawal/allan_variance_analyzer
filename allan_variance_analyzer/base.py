@@ -7,8 +7,8 @@ import numpy as np
 import yaml
 from loguru import logger
 
-from allan_variance.analysis import analyze
-from allan_variance.statistics import compute_allan_variances
+from allan_variance_analyzer.analysis import analyze
+from allan_variance_analyzer.statistics import compute_allan_variances
 
 FilePath = Union[str, Path]
 
@@ -51,7 +51,7 @@ class Config:
         return self.sequence_time_
 
 
-class AllanVariance(Config):
+class AllanVarianceAnalyzer(Config):
     """Main class to perform Allan Variance Analysis"""
 
     def __init__(

@@ -10,7 +10,7 @@ resolution-markers = [
 ]
 
 [[package]]
-name = "allan-variance"
+name = "allan-variance-analyzer"
 version = "1.0.0"
 source = { editable = "." }
 dependencies = [

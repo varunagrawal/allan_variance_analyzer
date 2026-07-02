@@ -7,7 +7,7 @@ from pathlib import Path
 import numpy as np
 from common import get_config_file
 
-from allan_variance import AllanVariance
+from allan_variance_analyzer import AllanVarianceAnalyzer
 
 current_dir = Path(__file__).parent.absolute()
 
@@ -26,7 +26,7 @@ class TestAllanVariance(unittest.TestCase):
     def test_constructor(self):
         """Test the constructor"""
 
-        av = AllanVariance(self.config_file, ".")
+        av = AllanVarianceAnalyzer(self.config_file, ".")
 
         self.assertEqual(av.config("imu_rate"), 400)
         self.assertEqual(av.config("measure_rate"), 400)
@@ -39,7 +39,7 @@ class TestAllanVariance(unittest.TestCase):
         # Convert the string path to a Path object for clean syntax
         tmp_path = Path(tmp_dir_object.name)
 
-        av = AllanVariance(
+        av = AllanVarianceAnalyzer(
             self.config_file,
             tmp_path,
             write_allan_deviations=True,

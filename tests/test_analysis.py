@@ -7,7 +7,7 @@ from typing import Callable
 import numpy as np
 import yaml
 
-from allan_variance.analysis import (
+from allan_variance_analyzer.analysis import (
     accelerometer_analysis,
     compute_bias_instability,
     compute_rate_random_walk,

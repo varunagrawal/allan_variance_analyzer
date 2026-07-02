@@ -4,7 +4,7 @@ import unittest
 
 import numpy as np
 
-from allan_variance.imu_data import ImuMeasurement
+from allan_variance_analyzer.imu_data import ImuMeasurement
 
 
 class TestImuMeasurement(unittest.TestCase):

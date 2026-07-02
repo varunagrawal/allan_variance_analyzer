@@ -1,7 +1,7 @@
 [project]
-name = "allan_variance"
+name = "allan_variance_analyzer"
 version = "1.0.0"
-description = "Tools for Allan Variance Analysis"
+description = "Efficient Tool for Allan Variance Analysis"
 authors = [{ name = "Varun Agrawal", email = "varagrawal@gmail.com" }]
 readme = "README.md"
 license = { text = "BSD 3-Clause License" }
@@ -26,16 +26,12 @@ homepage = "https://github.com/varunagrawal/allan_variance"
 dev = ["pytest>=7.1.1", "pylint>=2.13.2"]
 
 [build-system]
-requires = ["uv_build >= 0.11.23"]
+requires = ["uv_build >= 0.11.23, <0.12"]
 build-backend = "uv_build"
 
-[tool.setuptools.packages.find]
-include = ["allan_variance"]
-exclude = ["config", "ros", "ros2", "simulator"]
+[tool.uv.build-backend]
+module-root = "."
+module-name = "allan_variance_analyzer"
+source-exclude = ["config", "ros", "ros2", "simulator"]
+
 namespaces = false
-
-[tool.setuptools.package-data]
-roboplot = ["py.typed", "*.pyi", "**/*.pyi"]
-
-[tool.mypy]
-ignore_missing_imports = true

@@ -1,6 +1,6 @@
-# Fast Allan Variance
+# Allan Variance Analyzer
 
-Tools for Allan Variance Analysis
+Efficient Tool for Allan Variance Analysis
 
 This library provides tools for performing Allan Variance Analysis on IMU data in order to calibrate the IMU parameters.
 This is done by computing the Angle Random Walk (ARW), Bias Instability and Gyro Random Walk for the gyroscope, and Velocity Random Walk (VRW), Bias Instability and Accel Random Walk for the accelerometer.
@@ -71,10 +71,9 @@ If you use this package for academic work, please consider using the citation be
 @software{FastAllanVariance,
   author       = {Varun Agrawal},
   title        = {Fast Allan Variance Analysis},
-  month        = June,
-  year         = 2026,
+  year         = {2026},
   version      = {1.0.0},
-  url          = {https://github.com/varunagrawal/allan_variance}}
+  url          = {https://github.com/varunagrawal/allan_variance}
 }
 ```
 

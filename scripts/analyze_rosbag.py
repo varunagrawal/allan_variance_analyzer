@@ -5,8 +5,8 @@ python scripts/analyze_rosbag.py config/sim.yaml imu_simulation.bag
 
 import argparse
 
-from allan_variance import AllanVariance
-from allan_variance.rosbag_reader import ROSBagReader
+from allan_variance_analyzer import AllanVarianceAnalyzer
+from allan_variance_analyzer.rosbag_reader import ROSBagReader
 
 
 def parse_args():
@@ -20,7 +20,7 @@ def parse_args():
 def main():
     """Main runner"""
     args = parse_args()
-    av = AllanVariance(args.config, ".")
+    av = AllanVarianceAnalyzer(args.config, ".")
     bag_reader = ROSBagReader(
         args.rosbag, av.imu_topic(), av.imu_rate(), av.sequence_time(), av.imu_skip_
     )

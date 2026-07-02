@@ -12,8 +12,8 @@ import rosbag
 import rospy
 from tqdm import tqdm
 
-from allan_variance import AllanVariance
-from allan_variance.imu_data import ImuMeasurement
+from allan_variance_analyzer import AllanVarianceAnalyzer
+from allan_variance_analyzer.imu_data import ImuMeasurement
 
 
 def parse_args():
@@ -29,7 +29,7 @@ class BagReader:
     def __init__(self, bag_file: str, config_file: str):
         rospy.init_node('bag_reader', anonymous=True)
 
-        av = AllanVariance(config_file=config_file, output_path=".")
+        av = AllanVarianceAnalyzer(config_file=config_file, output_path=".")
         topics = (av.imu_topic(), )
 
         bag = rosbag.Bag(bag_file)

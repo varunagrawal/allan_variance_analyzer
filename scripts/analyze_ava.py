@@ -10,7 +10,7 @@ import argparse
 
 import numpy as np
 
-from allan_variance.analysis import analyze
+from allan_variance_analyzer.analysis import analyze
 
 
 def parse_arguments():

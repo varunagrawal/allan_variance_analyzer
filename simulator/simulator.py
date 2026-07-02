@@ -12,7 +12,7 @@ from jax import random
 from loguru import logger
 from tqdm import tqdm
 
-from allan_variance.base import FilePath
+from allan_variance_analyzer.base import FilePath
 
 
 def RandomNormalDistributionVector(key: jax.Array, sigma: float):
