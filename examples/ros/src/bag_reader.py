@@ -4,7 +4,6 @@ Script to parse a ROS bag and compute IMU calibration parameters.
 """
 
 import argparse
-from collections.abc import Iterable
 
 import numpy as np
 import ros_numpy
