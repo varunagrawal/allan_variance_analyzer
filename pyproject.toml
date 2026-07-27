@@ -1,6 +1,6 @@
 [project]
 name = "allan_variance_analyzer"
-version = "1.0.1"
+version = "1.0.2"
 description = "Efficient Tool for Allan Variance Analysis"
 authors = [{ name = "Varun Agrawal", email = "varagrawal@gmail.com" }]
 readme = "README.md"
