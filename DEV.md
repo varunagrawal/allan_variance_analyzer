@@ -20,5 +20,22 @@ source devel/setup.zsh  # Change based on your shell
 rosrun allan_variance bag_reader.py "/Users/varunagrawal/Dropbox (GaTech)/Data/oxford/anymal_2018-12-12-15-43-18-001.bag"
 ```
 
-
 ## ROS2
+
+## Packaging
+
+### Build
+
+In the root directory, run:
+
+```sh
+python -m build
+```
+
+### Upload
+
+To upload the package to PyPI, run
+
+```sh
+python -m twine upload dist/* --verbose
+```
