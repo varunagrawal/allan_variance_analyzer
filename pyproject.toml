@@ -11,6 +11,7 @@ requires-python = ">= 3.10"
 
 dependencies = [
   "numpy>=2.2.4",
+  "scipy>=1.18.0",
   "pyaml>=21.10.1",
   "attrdict>=2.0.1",
   "tqdm>=4.62.2",
