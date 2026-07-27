@@ -37,3 +37,6 @@
 catkin_ws
 
 **/.DS_Store
+
+# pip packaging
+dist/
