@@ -3,6 +3,7 @@ Functions to perform analysis of the Allan Deviations to get the IMU parameters.
 """
 
 from collections.abc import Callable
+from pathlib import Path
 
 import numpy as np
 from matplotlib import pyplot as plt
@@ -310,6 +311,7 @@ def write_imu_yaml(
     worst_gyro_white_noise: float,
     worst_gyro_random_walk: float,
     update_rate: int,
+    output_path: str | Path,
 ):
     """
     Write IMU calibration parameters to YAML file.
@@ -321,8 +323,11 @@ def write_imu_yaml(
         worst_gyro_random_walk (float): Gyroscope bias random walk
         update_rate (int): The IMU update rate.
     """
-    print("Writing Kalibr imu.yaml file.")
-    with open("imu.yaml", "w") as yaml_file:
+    output_file = Path(output_path) / "imu.yaml"
+
+    print(f"Writing Kalibr-style imu.yaml file to {output_file}")
+
+    with open(output_file, "w") as yaml_file:
         yaml_file.write("# Accelerometer\n")
         yaml_file.write(f"accelerometer_noise_density: {worst_accel_white_noise}\n")
         yaml_file.write(f"accelerometer_random_walk: {worst_accel_random_walk}\n")
@@ -343,7 +348,13 @@ def write_imu_yaml(
     print("Make sure to update rostopic and rate.")
 
 
-def analyze(period, allan_deviations, update_rate: int, show_plots: bool = True):
+def analyze(
+    period,
+    allan_deviations,
+    update_rate: int,
+    output_path: str | Path,
+    show_plots: bool = True,
+):
     """Analyze the Allan Deviations to get IMU parameters"""
     acceleration = allan_deviations[:, 0:3]
     rotation_rate = allan_deviations[:, 3:6]
@@ -364,4 +375,5 @@ def analyze(period, allan_deviations, update_rate: int, show_plots: bool = True)
         worst_gyro_white_noise,
         worst_gyro_random_walk,
         update_rate=update_rate,
+        output_path=output_path,
     )
