@@ -12,7 +12,7 @@ if __name__ == "__main__":
         av.imu_topic(),
         av.imu_rate(),
         av.sequence_time(),
-        av.imu_skip_,
+        av.imu_skip(),
     )
     data = reader.read()
 

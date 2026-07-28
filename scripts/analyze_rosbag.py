@@ -5,8 +5,9 @@ python scripts/analyze_rosbag.py config/sim.yaml imu_simulation.bag
 
 import argparse
 
+from rosbag_reader import ROSBagReader
+
 from allan_variance_analyzer import AllanVarianceAnalyzer
-from allan_variance_analyzer.rosbag_reader import ROSBagReader
 
 
 def parse_args():
@@ -20,9 +21,9 @@ def parse_args():
 def main():
     """Main runner"""
     args = parse_args()
-    av = AllanVarianceAnalyzer(args.config, ".")
+    av = AllanVarianceAnalyzer(args.config, "scripts")
     bag_reader = ROSBagReader(
-        args.rosbag, av.imu_topic(), av.imu_rate(), av.sequence_time(), av.imu_skip_
+        args.rosbag, av.imu_topic(), av.imu_rate(), av.sequence_time(), av.imu_skip()
     )
     # Data is Tx7 with the first column being the timestamp and the next 6 columns being the IMU data.
     data = bag_reader.read()
