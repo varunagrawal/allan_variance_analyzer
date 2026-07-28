@@ -1,7 +1,6 @@
 """Base module to Allan Variance Analysis"""
 
 from pathlib import Path
-from typing import Union
 
 import numpy as np
 import yaml
@@ -10,7 +9,7 @@ from loguru import logger
 from allan_variance_analyzer.analysis import analyze
 from allan_variance_analyzer.statistics import compute_allan_variances
 
-FilePath = Union[str, Path]
+FilePath = str | Path
 
 
 class Config:
