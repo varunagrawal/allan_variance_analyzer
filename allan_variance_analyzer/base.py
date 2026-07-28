@@ -22,9 +22,9 @@ class Config:
         self.imu_rate_ = self.config_["imu_rate"]
         self.measure_rate_ = self.config_["measure_rate"]
 
-        self.imu_topic_ = self.config_["imu_topic"] or None
-        self.sequence_time_ = self.config_["sequence_time"] or None
-        self.show_plots_ = self.config_["show_plots"] or False
+        self.imu_topic_ = self.config_.get("imu_topic")
+        self.sequence_time_ = self.config_.get("sequence_time")
+        self.show_plots_ = self.config_.get("show_plots", False)
 
     def config(self, key: str = ""):
         """Getter for the config."""
