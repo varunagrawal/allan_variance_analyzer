@@ -5,7 +5,7 @@ python scripts/analyze_rosbag.py config/sim.yaml imu_simulation.bag
 
 import argparse
 
-from allan_variance_analyzer.ros.rosbag_reader import ROSBagReader
+from allan_variance_analyzer.ros.bag_reader import ROSBagReader
 
 from allan_variance_analyzer import AllanVarianceAnalyzer
 
