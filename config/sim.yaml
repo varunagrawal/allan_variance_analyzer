@@ -1,4 +1,5 @@
-imu_topic: "/sensors/imu"
 imu_rate: 400
 measure_rate: 400 # Rate to which imu data is subsampled
-sequence_time: 11000 # 3 hours in seconds
+show_plots: true # Whether to show plots or not
+imu_topic: "/sensors/imu"  # Optional
+sequence_time: 11000 # Optional. 3 hours in seconds.
