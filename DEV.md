@@ -2,11 +2,13 @@
 
 ## Code Structure
 
-The main package is in `src/allan_variance_analyzer` following the src-layout best practice.
+We use namespace packages with the src-layout best practice.
+The namespace packages are:
+
+1. `allan-variance-analyzer` with module name `allan_variance_analyzer`.
+2. `allan-variance-analyzer-ros` with module name `allan_variance_analyzer.ros`.
 
 The `pyproject.toml` at the top-level defines both the main package build details and the [uv workspace](https://docs.astral.sh/uv/concepts/projects/workspaces/).
-
-`allan-variance-analyzer-ros` is a namespace package configured via the top-level `pyproject.toml`.
 
 ## ROS1
 

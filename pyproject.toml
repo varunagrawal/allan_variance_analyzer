@@ -1,41 +1,26 @@
 [project]
-name = "allan_variance_analyzer"
-version = "1.0.4"
-description = "Efficient Tool for Allan Variance Analysis"
-authors = [{ name = "Varun Agrawal", email = "varagrawal@gmail.com" }]
-readme = "README.md"
-license = { text = "BSD 3-Clause License" }
-keywords = ['Research', 'Inertial', 'Allan Variance']
-
+name = "allan_variance_analyzer_workspace"
+version = "0.0.0"  # Not used
 requires-python = ">= 3.10"
-
 dependencies = [
-  "numpy>=2.2.4",
-  "scipy>=1.15.0",
-  "pyaml>=21.10.1",
-  "attrdict>=2.0.1",
-  "tqdm>=4.62.2",
-  "loguru>=0.6.0",
-  "matplotlib>=3.10.7",
+  "allan-variance-analyzer",
+  "allan-variance-analyzer-ros",
 ]
 
-[project.urls]
-repository = "https://github.com/varunagrawal/allan_variance"
-homepage = "https://github.com/varunagrawal/allan_variance"
+[tool.uv]
+package = false # https://docs.astral.sh/uv/reference/settings/#package
+required-version = ">=0.6.0"
 
-[project.optional-dependencies]
-dev = ["pytest>=7.1.1", "pylint>=2.13.2"]
-
-[build-system]
-requires = ["uv_build >= 0.11.23, <0.12"]
-build-backend = "uv_build"
-
-[tool.uv.build-backend]
-module-name = "allan_variance_analyzer"
-namespace = true
-
-[tool.pytest.ini_options]
-pythonpath = ["src"]
+[tool.uv.sources]
+allan-variance-analyzer = { workspace = true}
+allan-variance-analyzer-ros = { workspace = true }
 
 [tool.uv.workspace]
-members = ["allan-variance-analyzer-ros"]
+members = ["allan-variance-analyzer", "allan-variance-analyzer-ros"]
+
+[tool.pytest.ini_options]
+consider_namespace_packages = true
+pythonpath = [
+    "allan-variance-analyzer/src",
+    "allan-variance-analyzer-ros/src"
+]

@@ -1,7 +1,7 @@
 [project]
-name = "allan-variance-analyzer-ros"
-version = "1.0.0"
-description = "Allan Variance Analysis with ROS Bag Support"
+name = "allan-variance-analyzer"
+version = "1.0.4"
+description = "Efficient Tool for Allan Variance Analysis"
 authors = [{ name = "Varun Agrawal", email = "varagrawal@gmail.com" }]
 readme = "README.md"
 license = { text = "BSD 3-Clause License" }
@@ -10,13 +10,18 @@ keywords = ['Research', 'Inertial', 'Allan Variance']
 requires-python = ">= 3.10"
 
 dependencies = [
-  "allan_variance_analyzer>=1.0.4",
-  "rosbags>=0.9.0",
+  "numpy>=2.2.4",
+  "scipy>=1.15.0",
+  "pyaml>=21.10.1",
+  "attrdict>=2.0.1",
+  "tqdm>=4.62.2",
+  "loguru>=0.6.0",
+  "matplotlib>=3.10.7",
 ]
 
 [project.urls]
-repository = "https://github.com/varunagrawal/allan_variance"
-homepage = "https://github.com/varunagrawal/allan_variance_analyzer/allan-variance-analyzer-ros"
+repository = "https://github.com/varunagrawal/allan_variance_analyzer"
+homepage = "https://github.com/varunagrawal/allan_variance_analyzer/allan-variance-analyzer"
 
 [project.optional-dependencies]
 dev = ["pytest>=7.1.1", "pylint>=2.13.2"]
@@ -26,5 +31,5 @@ requires = ["uv_build >= 0.11.23, <0.12"]
 build-backend = "uv_build"
 
 [tool.uv.build-backend]
-module-name = "allan_variance_analyzer.ros"
+module-name = "allan_variance_analyzer"
 namespace = true
