@@ -2,7 +2,7 @@
 Functions to perform analysis of the Allan Deviations to get the IMU parameters.
 """
 
-from typing import Callable, List
+from collections.abc import Callable
 
 import numpy as np
 from matplotlib import pyplot as plt
@@ -99,12 +99,12 @@ def compute_bias_instability(measurement: np.ndarray):
 def plot_loglog(
     period: np.ndarray,
     measurements: np.ndarray,
-    fit_wn: List[Callable],
-    fit_rr: List[Callable],
-    wn_intercept: List[float],
-    rr_intercept: List[float],
-    measurement_min: List[float],
-    measurement_min_index: List[int],
+    fit_wn: list[Callable],
+    fit_rr: list[Callable],
+    wn_intercept: list[float],
+    rr_intercept: list[float],
+    measurement_min: list[float],
+    measurement_min_index: list[int],
     average_white_noise: float,
     average_bias_instability: float,
     average_random_walk: float,
@@ -119,12 +119,12 @@ def plot_loglog(
     Args:
         period (np.ndarray): _description_
         measurements (np.ndarray): _description_
-        fit_wn (List[Callable]): _description_
-        fit_rr (List[Callable]): _description_
-        wn_intercept (List[float]): _description_
-        rr_intercept (List[float]): _description_
-        measurement_min (List[float]): _description_
-        measurement_min_index (List[int]): _description_
+        fit_wn (list[Callable]): _description_
+        fit_rr (list[Callable]): _description_
+        wn_intercept (list[float]): _description_
+        rr_intercept (list[float]): _description_
+        measurement_min (list[float]): _description_
+        measurement_min_index (list[int]): _description_
         average_white_noise (float): _description_
         average_bias_instability (float): _description_
         average_random_walk (float): _description_
