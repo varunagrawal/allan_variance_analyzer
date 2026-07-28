@@ -1,8 +1,9 @@
 """Tests for analysis module"""
 
+import tempfile
 import unittest
+from collections.abc import Callable
 from pathlib import Path
-from typing import Callable
 
 import numpy as np
 import yaml
@@ -38,6 +39,10 @@ class TestAnalysis(unittest.TestCase):
 
         self.acceleration = self.allan_deviations[:, 0:3]
         self.rotation_rate = self.allan_deviations[:, 3:6]
+
+        # Create directory for output path; it deletes itself when the test completes
+        tmp_directory = self.enterContext(tempfile.TemporaryDirectory())
+        self.output_path = Path(tmp_directory)
 
     def test_compute_white_noise_params(self):
         """Test the compute_white_noise_params function."""
@@ -126,6 +131,7 @@ class TestAnalysis(unittest.TestCase):
             self.period,
             self.acceleration,
             self.white_noise_break_point,
+            output_path=self.output_path,
             show_plots=False,
         )
 
@@ -139,6 +145,7 @@ class TestAnalysis(unittest.TestCase):
             self.period,
             self.rotation_rate,
             self.white_noise_break_point,
+            output_path=self.output_path,
             show_plots=False,
         )
 
@@ -152,12 +159,14 @@ class TestAnalysis(unittest.TestCase):
             self.period,
             self.acceleration,
             self.white_noise_break_point,
+            output_path=self.output_path,
             show_plots=False,
         )
         worst_gyro_white_noise, worst_gyro_random_walk = gyroscope_analysis(
             self.period,
             self.rotation_rate,
             self.white_noise_break_point,
+            output_path=self.output_path,
             show_plots=False,
         )
 
@@ -167,9 +176,10 @@ class TestAnalysis(unittest.TestCase):
             worst_gyro_white_noise,
             worst_gyro_random_walk,
             400,
+            output_path=self.output_path,
         )
 
-        with open("imu.yaml", "r") as stream:
+        with open(self.output_path / "imu.yaml", "r") as stream:
             actual_config = yaml.safe_load(stream)
 
         with open(current_dir / "fixtures" / "imu.yaml", "r") as stream:
