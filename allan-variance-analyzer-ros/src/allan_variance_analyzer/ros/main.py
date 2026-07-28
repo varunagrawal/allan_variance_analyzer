@@ -2,7 +2,7 @@
 
 from pathlib import Path
 
-from allan_variance_analyzer.base import AllanVarianceAnalyzer
+from allan_variance_analyzer import AllanVarianceAnalyzer
 
 FilePath = str | Path
 
@@ -25,8 +25,3 @@ class AllanVarianceAnalyzerROS(AllanVarianceAnalyzer):
                 imu_counter / self.imu_rate_ > self.sequence_time_
             ):
                 continue
-
-            if self.first_msg_:
-                self.first_msg_ = False
-                self.first_time_ = tNanoSecs
-                self.last_imu_time_ = tNanoSecs

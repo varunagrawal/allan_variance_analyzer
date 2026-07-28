@@ -3,12 +3,13 @@
 from pathlib import Path
 
 import numpy as np
+from allan_variance_analyzer.ros.imu_data import ImuMeasurement
 from loguru import logger
 from rosbags.highlevel import AnyReader
 from rosbags.typesys import Stores, get_typestore
 from tqdm import tqdm
 
-from allan_variance_analyzer import FilePath, ImuMeasurement
+FilePath = str | Path
 
 
 class ROSBagReader:

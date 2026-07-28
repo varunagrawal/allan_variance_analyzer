@@ -1,5 +1,13 @@
 # Developer Notes
 
+## Code Structure
+
+The main package is in `src/allan_variance_analyzer` following the src-layout best practice.
+
+The `pyproject.toml` at the top-level defines both the main package build details and the [uv workspace](https://docs.astral.sh/uv/concepts/projects/workspaces/).
+
+`allan-variance-analyzer-ros` is a namespace package configured via the top-level `pyproject.toml`.
+
 ## ROS1
 
 We use RoboStack to run ROS1 commands.
@@ -29,7 +37,7 @@ rosrun allan_variance bag_reader.py "/Users/varunagrawal/Dropbox (GaTech)/Data/o
 In the root directory, run:
 
 ```sh
-python -m build
+uv build --all
 ```
 
 ### Upload
