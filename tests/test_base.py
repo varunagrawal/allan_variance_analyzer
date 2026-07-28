@@ -5,9 +5,8 @@ import unittest
 from pathlib import Path
 
 import numpy as np
-from common import get_config_file
-
 from allan_variance_analyzer import AllanVarianceAnalyzer
+from common import get_config_file
 
 current_dir = Path(__file__).parent.absolute()
 

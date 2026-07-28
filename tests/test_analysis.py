@@ -7,7 +7,6 @@ from pathlib import Path
 
 import numpy as np
 import yaml
-
 from allan_variance_analyzer.analysis import (
     accelerometer_analysis,
     compute_bias_instability,

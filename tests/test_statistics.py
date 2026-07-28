@@ -4,13 +4,12 @@ import unittest
 from pathlib import Path
 
 import numpy as np
-from common import SlowAllanVariance, get_config_file
-
 from allan_variance_analyzer.statistics import (
     _compute_cumsum,
     compute_allan_variances,
     compute_bin_averages,
 )
+from common import SlowAllanVariance, get_config_file
 
 current_dir = Path(__file__).parent.absolute()
 
