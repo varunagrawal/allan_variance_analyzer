@@ -30,6 +30,8 @@ dev = ["pytest>=7.1.1", "pylint>=2.13.2"]
 requires = ["uv_build >= 0.11.23, <0.12"]
 build-backend = "uv_build"
 
+[tool.uv.build-backend]
+module-name = "allan_variance_analyzer"
 namespaces = false
 
 [tool.pytest.ini_options]
