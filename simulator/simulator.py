@@ -5,19 +5,18 @@ https://github.com/ori-drs/allan_variance_ros/blob/master/src/ImuSimulator.cpp
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
-import jax
-import jax.numpy as np
+import numpy as np
 import yaml
-from jax import random
 from loguru import logger
 from tqdm import tqdm
 
 from allan_variance_analyzer.base import FilePath
 
 
-def RandomNormalDistributionVector(key: jax.Array, sigma: float):
+def RandomNormalDistributionVector(sigma: float):
     """Sample a normally distributed vector with variance `sigma`."""
-    return random.normal(key, shape=(3,)) * sigma
+    rng = np.random.default_rng()
+    return rng.normal(size=(3,)) * sigma
 
 
 class ImuSimulator:
@@ -49,7 +48,6 @@ class ImuSimulator:
 
     def run(self):
         """Run simulation"""
-        key = random.key(42)
 
         logger.info("Generating IMU data...")
         dt = 1 / self.update_rate_
@@ -67,24 +65,22 @@ class ImuSimulator:
             for i in tqdm(range(int(self.sequence_time_ * self.update_rate_))):
                 # Reference: https://github.com/ethz-asl/kalibr/wiki/IMU-Noise-Model
                 accelerometer_bias += RandomNormalDistributionVector(
-                    key, self.accelerometer_random_walk_
+                    self.accelerometer_random_walk_
                 ) * np.sqrt(dt)
                 gyroscope_bias += RandomNormalDistributionVector(
-                    key, self.gyroscope_random_walk_
+                    self.gyroscope_random_walk_
                 ) * np.sqrt(dt)
 
                 acc_measure = (
                     accelerometer_real
                     + accelerometer_bias
-                    + RandomNormalDistributionVector(
-                        key, self.accelerometer_noise_density_
-                    )
+                    + RandomNormalDistributionVector(self.accelerometer_noise_density_)
                     / np.sqrt(dt)
                 )
                 gyro_measure = (
                     gyroscope_real
                     + gyroscope_bias
-                    + RandomNormalDistributionVector(key, self.gyroscope_noise_density_)
+                    + RandomNormalDistributionVector(self.gyroscope_noise_density_)
                     / np.sqrt(dt)
                 )
 
