@@ -12,7 +12,7 @@ micromamba activate ros_env
 roscore
 ```
 
-Now build the ROS packages. We assume you have the `ros` subdirectory copied to your `catkin_ws/src` directory.
+Now build the ROS packages. We assume you have the `examples/ros` subdirectory copied to your `catkin_ws/src` directory.
 
 ```shell
 catkin_make
