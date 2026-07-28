@@ -5,14 +5,12 @@ Script to parse a ROS bag and compute IMU calibration parameters.
 
 import argparse
 
-import numpy as np
-import ros_numpy
 import rosbag
 import rospy
+from allan_variance_analyzer.ros import ImuMeasurement
 from tqdm import tqdm
 
 from allan_variance_analyzer import AllanVarianceAnalyzer
-from scripts.imu_data import ImuMeasurement
 
 
 def parse_args():
@@ -24,6 +22,8 @@ def parse_args():
 
 
 class BagReader:
+    """Class to read a ROS bag and extract IMU measurements."""
+
     def __init__(self, bag_file: str, config_file: str):
         rospy.init_node("bag_reader", anonymous=True)
 
@@ -33,7 +33,7 @@ class BagReader:
         bag = rosbag.Bag(bag_file)
         rospy.loginfo("Reading the bag!")
 
-        num_of_messages = bag.get_message_count(topics)
+        # num_of_messages = bag.get_message_count(topics)
 
         imu_measurements = []
 
@@ -41,16 +41,17 @@ class BagReader:
         print(bag.get_type_and_topic_info(topic_filters=topics).topics)
         for i, (topic, msg, _) in tqdm(enumerate(bag.read_messages(topics=topics))):
             # print(topic, msg)
-            # imu_measurement = ImuMeasurement(
-            #     msg.header.stamp.nsecs,
-            #     linear_acceleration=msg.linear_acceleration,
-            #     angular_velocity=msg.angular_velocity)
-            # imu_measurements.append(imu_measurement.asarray()[1:])
+            imu_measurement = ImuMeasurement(
+                msg.header.stamp.nsecs,
+                linear_acceleration=msg.linear_acceleration,
+                angular_velocity=msg.angular_velocity,
+            )
+            imu_measurements.append(imu_measurement.asarray()[1:])
             # print(msg.angular_velocity)
             print(msg)
-            if count > 3:
+            if i > 3:
                 break
-            count += 1
+
         bag.close()
 
         # imu_measurements = np.asarray(imu_measurements)
