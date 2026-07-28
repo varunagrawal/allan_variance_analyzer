@@ -58,7 +58,6 @@ gyroscope_noise_density: 0.00015198973532354657
 gyroscope_random_walk: 2.664506559330434e-06 
 
 update_rate: 400.0 # Make sure this is correct
-
 ```
 
 ## Author
