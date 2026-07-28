@@ -19,12 +19,11 @@ class Config:
         with open(config_file, "r") as stream:
             self.config_ = yaml.safe_load(stream)
 
-        self.imu_topic_ = self.config_["imu_topic"]
         self.imu_rate_ = self.config_["imu_rate"]
         self.measure_rate_ = self.config_["measure_rate"]
-        self.sequence_time_ = self.config_["sequence_time"]
 
-        self.imu_skip_ = self.imu_rate_ // self.measure_rate_
+        self.imu_topic_ = self.config_["imu_topic"] or None
+        self.sequence_time_ = self.config_["sequence_time"] or None
 
     def config(self, key: str = ""):
         """Getter for the config."""
@@ -48,6 +47,10 @@ class Config:
     def sequence_time(self):
         """Get the total sequence time."""
         return self.sequence_time_
+
+    def imu_skip(self):
+        """Get the IMU skip rate."""
+        return self.imu_rate_ // self.measure_rate_
 
 
 class AllanVarianceAnalyzer(Config):
