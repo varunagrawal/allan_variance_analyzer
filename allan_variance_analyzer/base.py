@@ -24,6 +24,7 @@ class Config:
 
         self.imu_topic_ = self.config_["imu_topic"] or None
         self.sequence_time_ = self.config_["sequence_time"] or None
+        self.show_plots_ = self.config_["show_plots"] or False
 
     def config(self, key: str = ""):
         """Getter for the config."""
@@ -68,7 +69,7 @@ class AllanVarianceAnalyzer(Config):
 
         super().__init__(config_file=config_file)
 
-        self.allan_variance_file_ = Path(output_path) / "allan_variance.csv"
+        self.output_path_ = Path(output_path)
 
         self.overlap_ = overlap
 
@@ -87,8 +88,10 @@ class AllanVarianceAnalyzer(Config):
 
     def write_deviations(self, periods: np.ndarray, allan_deviations: np.ndarray):
         """Helper method to write the Allan Deviations to file."""
-        logger.info(f"Writing Allan Deviations to {self.allan_variance_file_}")
-        with open(self.allan_variance_file_, "w+") as av_writer:
+        allan_variance_file = self.output_path_ / "allan_variance.csv"
+
+        logger.info(f"Writing Allan Deviations to {allan_variance_file}")
+        with open(allan_variance_file, "w+") as av_writer:
             for period, allan_deviation in zip(periods, allan_deviations):
                 # Convert to string for writing to file
                 allan_deviation_str = " ".join(map(str, allan_deviation.tolist()))
@@ -117,4 +120,10 @@ class AllanVarianceAnalyzer(Config):
         if self.write_allan_deviations_:
             self.write_deviations(periods, allan_deviations)
 
-        analyze(periods, allan_deviations, self.imu_rate_)
+        analyze(
+            periods,
+            allan_deviations,
+            self.imu_rate_,
+            output_path=self.output_path_,
+            show_plots=self.show_plots_,
+        )
