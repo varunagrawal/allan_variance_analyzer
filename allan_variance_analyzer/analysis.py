@@ -112,6 +112,7 @@ def plot_loglog(
     measurement_type: str,
     sensor_type: str,
     units: str,
+    output_path: str | Path,
     dpi=90,
     figsize=(16, 9),
 ):
@@ -132,6 +133,7 @@ def plot_loglog(
         measurement_type (str): _description_
         sensor_type (str): _description_
         units (str): _description_
+        output_path (str | Path): Path where to save the plots.
         dpi (int, optional): _description_. Defaults to 90.
         figsize (tuple, optional): _description_. Defaults to (16, 9).
     """
@@ -181,11 +183,16 @@ def plot_loglog(
     plt.draw()
     plt.close()
 
-    fig.savefig(f"{measurement_type.lower()}.png", dpi=600, bbox_inches="tight")
+    figure_path = output_path / f"{measurement_type.lower()}.png"
+    fig.savefig(figure_path, dpi=600, bbox_inches="tight")
 
 
 def accelerometer_analysis(
-    period, acceleration, white_noise_break_point, show_plots: bool = True
+    period,
+    acceleration,
+    white_noise_break_point,
+    output_path: str | Path,
+    show_plots: bool = True,
 ):
     """Analyze the accelerometer measurements to get accelerometer parameters."""
     # Compute VRW from the white noise
@@ -240,13 +247,18 @@ def accelerometer_analysis(
             "Acceleration",
             "Accelerometer",
             "m/s^2",
+            output_path=output_path,
         )
 
     return worst_accel_white_noise, worst_accel_random_walk
 
 
 def gyroscope_analysis(
-    period, rotation_rate, white_noise_break_point, show_plots: bool = True
+    period,
+    rotation_rate,
+    white_noise_break_point,
+    output_path: str | Path,
+    show_plots: bool = True,
 ):
     """Analyze the gyroscope measurements to get gyroscope parameters."""
     # Compute ARW from the white noise
@@ -300,6 +312,7 @@ def gyroscope_analysis(
             measurement_type="Gyro",
             sensor_type="Gyroscope",
             units="deg/s",
+            output_path=output_path,
         )
 
     return worst_gyro_white_noise, worst_gyro_random_walk
@@ -362,11 +375,19 @@ def analyze(
     white_noise_break_point = np.where(period == 10)[0][0]
 
     worst_accel_white_noise, worst_accel_random_walk = accelerometer_analysis(
-        period, acceleration, white_noise_break_point, show_plots=show_plots
+        period,
+        acceleration,
+        white_noise_break_point,
+        output_path=output_path,
+        show_plots=show_plots,
     )
 
     worst_gyro_white_noise, worst_gyro_random_walk = gyroscope_analysis(
-        period, rotation_rate, white_noise_break_point, show_plots=show_plots
+        period,
+        rotation_rate,
+        white_noise_break_point,
+        output_path=output_path,
+        show_plots=show_plots,
     )
 
     write_imu_yaml(
