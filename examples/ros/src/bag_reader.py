@@ -4,7 +4,7 @@ Script to parse a ROS bag and compute IMU calibration parameters.
 """
 
 import argparse
-from typing import Iterable
+from collections.abc import Iterable
 
 import numpy as np
 import ros_numpy
@@ -13,7 +13,7 @@ import rospy
 from tqdm import tqdm
 
 from allan_variance_analyzer import AllanVarianceAnalyzer
-from allan_variance_analyzer.imu_data import ImuMeasurement
+from scripts.imu_data import ImuMeasurement
 
 
 def parse_args():
@@ -25,12 +25,11 @@ def parse_args():
 
 
 class BagReader:
-
     def __init__(self, bag_file: str, config_file: str):
-        rospy.init_node('bag_reader', anonymous=True)
+        rospy.init_node("bag_reader", anonymous=True)
 
         av = AllanVarianceAnalyzer(config_file=config_file, output_path=".")
-        topics = (av.imu_topic(), )
+        topics = (av.imu_topic(),)
 
         bag = rosbag.Bag(bag_file)
         rospy.loginfo("Reading the bag!")
@@ -41,8 +40,7 @@ class BagReader:
 
         count = 0
         print(bag.get_type_and_topic_info(topic_filters=topics).topics)
-        for i, (topic, msg,
-                _) in tqdm(enumerate(bag.read_messages(topics=topics))):
+        for i, (topic, msg, _) in tqdm(enumerate(bag.read_messages(topics=topics))):
             # print(topic, msg)
             # imu_measurement = ImuMeasurement(
             #     msg.header.stamp.nsecs,
